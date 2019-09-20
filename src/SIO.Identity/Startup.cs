@@ -28,8 +28,7 @@ namespace SIO.Identity
                 .AddEvents()
                 .AddQueries()
                 .AddJsonSerializers();
-
-            services.AddIdentityConfiguration();
+            
             services.AddSIOIdentity();
         }
 

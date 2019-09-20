@@ -37,6 +37,8 @@ namespace SIO.Identity
 
             var migrationsAssembly = typeof(SIOIdentityDbContext).Assembly.GetName().Name;
 
+            services.AddIdentityConfiguration();
+
             services.AddDbContext<SIOIdentityDbContext>(options =>
                 options.UseSqlServer(connectionString, sql =>
                 {
