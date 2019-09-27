@@ -1,2 +1,2 @@
 # sio-identity
-Identity server for authetication
+[![Build Status](https://dev.azure.com/sound-it-out/Identity/_apis/build/status/sound-it-out.sio-identity?branchName=master)](https://dev.azure.com/sound-it-out/Identity/_build/latest?definitionId=4&branchName=master)
