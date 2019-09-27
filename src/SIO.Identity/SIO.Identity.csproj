@@ -18,4 +18,9 @@
     <ProjectReference Include="..\SIO.Migrations\SIO.Migrations.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Login\Responses\" />
+    <Folder Include="Verify\" />
+  </ItemGroup>
+
 </Project>
