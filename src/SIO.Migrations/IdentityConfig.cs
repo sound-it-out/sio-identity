@@ -4,9 +4,9 @@ using IdentityServer4.Models;
 
 namespace SIO.Migrations
 {
-    public class IdentityConfig
+    internal class IdentityConfig
     {
-        public IEnumerable<ApiResource> ApiResources { get; set; }
-        public IEnumerable<Client> Clients { get; set; }
+        public IEnumerable<ApiResourceOption> ApiResources { get; set; }
+        public IEnumerable<ClientOption> Clients { get; set; }
     }
 }

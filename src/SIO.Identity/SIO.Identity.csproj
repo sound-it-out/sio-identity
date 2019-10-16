@@ -3,7 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>869b8ac0-3c1c-45a1-b4a6-3fd4c386514e</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Verify\**" />
+    <Content Remove="Verify\**" />
+    <EmbeddedResource Remove="Verify\**" />
+    <None Remove="Verify\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="2.5.3" />
@@ -20,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Login\Responses\" />
-    <Folder Include="Verify\" />
   </ItemGroup>
 
 </Project>

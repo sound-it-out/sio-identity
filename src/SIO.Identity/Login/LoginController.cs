@@ -68,6 +68,8 @@ namespace SIO.Identity.Login
                  
                 return Redirect("");
             }
+
+            return Redirect("");
         }
     }
 }

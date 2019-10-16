@@ -14,16 +14,6 @@ namespace SIO.Identity
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddServices(this IServiceCollection services)
-        {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
-
-            services.TryAdd(GetServices());
-
-            return services;
-        }
-
         public static IServiceCollection AddSIOIdentity(this IServiceCollection services)
         {
             if (services == null)
@@ -113,11 +103,6 @@ namespace SIO.Identity
 
 
             return services;
-        }
-
-        private static IEnumerable<ServiceDescriptor> GetServices()
-        {
-            yield return ServiceDescriptor.Scoped<ILoginDetailsResponseBuilder, LoginDetailsResponseBuilder>();
         }
     }
 }

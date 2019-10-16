@@ -36,16 +36,36 @@ namespace SIO.Migrations
                     new IdentityResources.Profile()
                 };
 
-                SeedClient(configurationDbContext, config);
+                var clients = config.Clients.Select(c => new Client
+                {
+                    ClientId = c.ClientId,
+                    ClientName = c.ClientName,
+                    Enabled = true,
+                    RequireConsent = c.RequiresConsent,
+                    AllowedGrantTypes = c.AllowedGrantTypes,
+                    AllowAccessTokensViaBrowser = c.AllowAccessTokensViaBrowser,
+                    RequireClientSecret = c.RequireClientSecret,
+                    RequirePkce = c.RequirePkce,
+                    ClientSecrets = c.ClientSecrets.Select(secret => new Secret(secret.Sha256())).ToList(),
+                    RedirectUris = c.RedirectUris,
+                    PostLogoutRedirectUris = c.PostLogoutRedirectUris,
+                    AllowedCorsOrigins = c.AllowedCorsOrigins,
+                    AllowedScopes = c.AllowedScopes,
+                    AllowOfflineAccess = c.AllowOfflineAccess
+                });
+
+                var apiResources = config.ApiResources.Select(resource => new ApiResource(resource.Name, resource.DisplayName, new[] { "role" }));
+
+                SeedClient(configurationDbContext, clients);
                 SeedIdentiyResources(configurationDbContext, identityResources);
-                SeedApiResources(configurationDbContext, config);
+                SeedApiResources(configurationDbContext, apiResources);
             }
         }
 
-        private static void SeedClient(ConfigurationDbContext context, IdentityConfig config)
+        private static void SeedClient(ConfigurationDbContext context, IEnumerable<Client> clients)
         {
-            var newClients = config.Clients.Where(client => !context.Clients.Any(c => c.ClientId == client.ClientId)).ToList();
-            var existingClients = config.Clients.Where(client => context.Clients.Any(c => c.ClientId == client.ClientId)).ToList();
+            var newClients = clients.Where(client => !context.Clients.Any(c => c.ClientId == client.ClientId)).ToList();
+            var existingClients = clients.Where(client => context.Clients.Any(c => c.ClientId == client.ClientId)).ToList();
 
             context.Clients.AddRange(newClients.Select(c => c.ToEntity()));
             context.SaveChanges();
@@ -75,10 +95,10 @@ namespace SIO.Migrations
             context.SaveChanges();
         }
 
-        private static void SeedApiResources(ConfigurationDbContext context, IdentityConfig config)
+        private static void SeedApiResources(ConfigurationDbContext context, IEnumerable<ApiResource> apiResources)
         {
-            var newResources = config.ApiResources.Where(resource => !context.ApiResources.Any(r => r.Name == resource.Name)).ToList();
-            var existingResources = config.ApiResources.Where(resource => context.ApiResources.Any(r => r.Name == resource.Name)).ToList();
+            var newResources = apiResources.Where(resource => !context.ApiResources.Any(r => r.Name == resource.Name)).ToList();
+            var existingResources = apiResources.Where(resource => context.ApiResources.Any(r => r.Name == resource.Name)).ToList();
 
             context.ApiResources.AddRange(newResources.Select(resource => resource.ToEntity()));
             context.SaveChanges();

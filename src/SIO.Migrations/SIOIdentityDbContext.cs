@@ -5,7 +5,7 @@ namespace SIO.Migrations
 {
     public class SIOIdentityDbContext : IdentityDbContext<SIOUser>
     {
-        public SIOIdentityDbContext(DbContextOptions options) : base(options)
+        public SIOIdentityDbContext(DbContextOptions<SIOIdentityDbContext> options) : base(options)
         {
         }
     }
