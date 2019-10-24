@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "../../Shared/Views/_Layout";
+    ViewData["Title"] = "Register";
+}
+
+<form class="form-signin text-center" asp-route="register" method="post">
+    @Html.AntiForgeryToken()
+    <div class="card shadow-lg">
+        <div class="card-body">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mt-3"></div>
+
+            <div class="form-group mt-3">
+                <label for="firstname" class="sr-only">Firstname</label>
+                <input type="text" id="firstname" name="email" class="form-control" placeholder="Firstname" required="" autofocus="" autocomplete="off">
+            </div>
+            <div class="form-group mt-3">
+                <label for="lastname" class="sr-only">Lastname</label>
+                <input type="text" id="lastname" name="email" class="form-control" placeholder="Lastname" required="" autofocus="" autocomplete="off">
+            </div>
+            <div class="form-group mt-3">
+                <label for="email" class="sr-only">Email</label>
+                <input type="text" id="email" name="email" class="form-control" placeholder="Email address" required="" autofocus="" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary btn-block" name="button" value="submit" type="submit">Register</button>
+            </div>
+        </div>
+    </div>
+</form>

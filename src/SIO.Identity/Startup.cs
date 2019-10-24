@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
+using OpenEventSourcing.EntityFrameworkCore.SqlServer;
 using SIO.Migrations;
 
 namespace SIO.Identity
@@ -24,6 +25,7 @@ namespace SIO.Identity
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddOpenEventSourcing()
+                .AddEntityFrameworkCoreSqlServer()
                 .AddCommands()
                 .AddEvents()
                 .AddQueries()

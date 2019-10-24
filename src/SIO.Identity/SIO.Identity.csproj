@@ -19,10 +19,12 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="OpenEventSourcing" Version="0.2.0" />
+    <PackageReference Include="OpenEventSourcing.EntityFrameworkCore.SqlServer" Version="0.2.0" />
     <PackageReference Include="OpenEventSourcing.Serialization.Json" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SIO.Domain\SIO.Domain.csproj" />
     <ProjectReference Include="..\SIO.Migrations\SIO.Migrations.csproj" />
   </ItemGroup>
 

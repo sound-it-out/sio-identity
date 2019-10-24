@@ -4,7 +4,7 @@ using OpenEventSourcing.Commands;
 
 namespace SIO.Domain.User.Commands
 {
-    class RegisterUserCommand : Command
+    public class RegisterUserCommand : Command
     {
         public string FirstName { get; }
         public string LastName { get; }
