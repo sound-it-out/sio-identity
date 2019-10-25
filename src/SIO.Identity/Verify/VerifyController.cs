@@ -40,7 +40,7 @@ namespace SIO.Identity.Verify
         }
 
         [HttpGet("verify")]
-        public async Task<IActionResult> Verify(string email, string token)
+        public IActionResult Verify(string email, string token)
         {
             if (email == null || string.IsNullOrEmpty(email))
                 ModelState.AddModelError("", "You must suply a valid email address");
@@ -51,6 +51,7 @@ namespace SIO.Identity.Verify
         }
 
         [HttpPost("verify")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Verify(VerifyRequest request)
         {
             if (!ModelState.IsValid)

@@ -30,7 +30,7 @@ namespace SIO.Identity.Register
             _userManager = userManager;
         }
 
-        [HttpGet("Register")]
+        [HttpGet("register")]
         public IActionResult Register()
         {
             if (User.Identity.IsAuthenticated)
@@ -39,6 +39,8 @@ namespace SIO.Identity.Register
             return View();
         }
 
+        [HttpPost("register")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
             if (request == null || !ModelState.IsValid)
