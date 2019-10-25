@@ -56,12 +56,14 @@ namespace SIO.Domain.User.CommandHandlers
             if (!claimResult.Succeeded)
                 throw new UserCommandException($"Failed to add roles to user: {command.AggregateId} {Environment.NewLine}Errors: {string.Join(Environment.NewLine, claimResult.Errors.Select(e => $"code: {e.Code}, description: {e.Description}"))}");
 
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
             await _eventBus.PublishAsync(new UserRegistered(
                 aggregateId: command.AggregateId,
                 email: command.Email,
                 firstName: command.FirstName,
                 lastName: command.LastName,
-                activationToken: await _userManager.GenerateEmailConfirmationTokenAsync(user)
+                activationToken: token
             ));
         }
     }
