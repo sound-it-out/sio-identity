@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenEventSourcing.Events;
-using SIO.Migrations;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using SIO.Identity.Verify.Requests;
 using SIO.Identity.Verify.Response;
+using SIO.Migrations;
 
 namespace SIO.Identity.Verify
 {

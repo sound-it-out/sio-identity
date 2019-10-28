@@ -1,0 +1,13 @@
+﻿$sio-green: #00b700;
+$theme-colors: (
+  "primary": $sio-green
+);
+
+$enable-rounded: true;
+
+@import 'node_modules/bootstrap/scss/bootstrap';
+
+.logo {
+    max-width: 16rem;
+    width: 100%;
+}

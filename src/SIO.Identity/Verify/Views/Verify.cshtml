@@ -5,6 +5,12 @@
     ViewData["Title"] = "Verify";
 }
 
+<div class="row mb-3">
+    <div class="col text-center">
+        <img class="logo" src="~/img/logo.svg" />
+    </div>
+</div>
+
 <form class="form-signin text-center" asp-route="register" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Email" />

@@ -53,6 +53,7 @@ namespace SIO.Identity
             app.UseIdentityServer();
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
