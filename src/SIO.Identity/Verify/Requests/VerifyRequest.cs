@@ -20,5 +20,16 @@ namespace SIO.Identity.Verify.Requests
             if (Password != RePassword)
                 yield return new ValidationResult("Passwords do not match");
         }
+
+        public VerifyRequest()
+        {
+
+        }
+
+        public VerifyRequest(string email, string token)
+        {
+            Email = email;
+            Token = token;
+        }
     }
 }

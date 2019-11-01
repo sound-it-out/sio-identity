@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -41,11 +39,11 @@ namespace SIO.Identity.ForgotPassword
                 bool hasError = false;
                 if (!user.EmailConfirmed)
                 {
-                    ModelState.AddModelError("", "Email is already in use");
+                    ModelState.AddModelError("", "The account associated with this email has not been activated yet");
                     hasError = true;
                 }
                 
-                if(!user.IsArchived)
+                if(user.IsArchived)
                 {
                     ModelState.AddModelError("", "Your account has been deactivated");
                     hasError = true;
@@ -57,6 +55,10 @@ namespace SIO.Identity.ForgotPassword
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                 return RedirectToAction(nameof(ForgotPasswordSuccess));
+            }
+            else
+            {
+                ModelState.AddModelError("", "There is no account associated with the specified email");
             }
 
             return View(request);

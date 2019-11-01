@@ -42,8 +42,10 @@ namespace SIO.Identity.Verify
                 ModelState.AddModelError("", "You must suply a valid email address");
             if (token == null || string.IsNullOrEmpty(token))
                 ModelState.AddModelError("", "You must supply a valid verification token");
+            else
+                token = Encoding.UTF8.GetString(Convert.FromBase64String(token));
 
-            return View(new VerifyResponse(email, Encoding.UTF8.GetString(Convert.FromBase64String(token))));
+            return View(new VerifyRequest(email, token));
         }
 
         [HttpPost("verify")]
