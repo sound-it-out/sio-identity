@@ -13,12 +13,14 @@ namespace SIO.Identity.Tests.ForgotPassword
 {
     public class ForgotPasswordControllerTests : ControllerTest<ForgotPasswordController>
     {
-        [Fact]
-        public void Initialising_Controller_With_Null_Values_Should_Error()
+        [Theory]
+        [InlineData("userManager")]
+        public void Initialising_Controller_With_Null_Param_Should_Error(string param)
         {
             Action createdController = () => new ForgotPasswordController(null);
             createdController.Should().Throw<ArgumentNullException>()
-                .WithMessage("Value cannot be null. (Parameter 'userManager')");
+                .WithMessage($@"Value cannot be null.
+Parameter name: {param}");
         }
 
         [Fact]

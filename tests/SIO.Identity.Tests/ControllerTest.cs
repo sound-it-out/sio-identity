@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using OpenEventSourcing.EntityFrameworkCore.InMemory;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using SIO.Migrations;
@@ -21,11 +22,12 @@ namespace SIO.Identity.Tests
         {
             var services = new ServiceCollection();
 
-            //services.AddOpenEventSourcing()                
-            //    .AddCommands()
-            //    .AddEvents()
-            //    .AddQueries()
-            //    .AddJsonSerializers();
+            services.AddOpenEventSourcing()
+                .AddEntityFrameworkCoreInMemory()
+                .AddCommands()
+                .AddEvents()
+                .AddQueries()
+                .AddJsonSerializers();
 
             var migrationsAssembly = typeof(SIOIdentityDbContext).Assembly.GetName().Name;
             var dbName = $"{GetType().Name}_{Guid.NewGuid()}";
