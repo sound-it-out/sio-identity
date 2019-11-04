@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using IdentityServer4;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +98,13 @@ namespace SIO.Identity.Tests
 
             services.AddSingleton(configuration.Object);
             services.AddTransient<TController>();
+
+            var httpContextMock = new Mock<HttpContext>();
+            var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+            
+            httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContextMock.Object);            
+            services.AddTransient(x => httpContextAccessorMock);
+            services.AddTransient(x => httpContextAccessorMock.Object);
 
             serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TController>();

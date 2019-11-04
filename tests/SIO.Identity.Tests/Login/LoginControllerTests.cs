@@ -231,5 +231,47 @@ namespace SIO.Identity.Tests.Login
             result.Should().BeOfType<ViewResult>();
             controller.ModelState.IsValid.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task Login_POST_Should_Redirect_To_Default_App_Url_When_Correct_Password_Is_Supplied()
+        {
+            var controller = BuildController(out var serviceProvider);
+            var mockReturnUrl = "http://localhost/something";
+
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            mockUrlHelper.Setup(uh => uh.IsLocalUrl(It.Is<string>(s => s == mockReturnUrl))).Returns(true);
+
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.Url = mockUrlHelper.Object;
+
+            var request = new LoginRequest { Email = "test@sound-it-out.com", Password = "Asdf@123456789asdf", ReturnUrl = mockReturnUrl };
+
+            var userManager = serviceProvider.GetRequiredService<UserManager<SIOUser>>();
+            var user = new SIOUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                Email = request.Email,
+                FirstName = "firstname",
+                LastName = "lastname",
+                UserName = request.Email,
+            };
+
+            await userManager.CreateAsync(user);
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            await userManager.ConfirmEmailAsync(user, token);
+            await userManager.AddPasswordAsync(user, request.Password);
+            controller.ValidateRequest(request);
+
+            var result = await controller.Login(request, "login");
+            user = await userManager.FindByEmailAsync(user.Email);
+            user.AccessFailedCount.Should().Be(0);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<RedirectToActionResult>();
+            controller.ModelState.IsValid.Should().BeTrue();
+        }
     }
 }
