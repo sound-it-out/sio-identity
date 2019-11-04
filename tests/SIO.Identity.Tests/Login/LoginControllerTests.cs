@@ -226,7 +226,7 @@ namespace SIO.Identity.Tests.Login
 
             var result = await controller.Login(request, "login");
             user = await userManager.FindByEmailAsync(user.Email);
-            user.AccessFailedCount.Should().BeGreaterThan(0);
+            user.AccessFailedCount.Should().Be(1);
             result.Should().NotBeNull();
             result.Should().BeOfType<ViewResult>();
             controller.ModelState.IsValid.Should().BeFalse();
