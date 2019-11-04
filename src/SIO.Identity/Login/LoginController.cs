@@ -67,11 +67,11 @@ namespace SIO.Identity.Login
         [HttpPost("login")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginRequest request, string button)
-        {
-            var context = await _interaction.GetAuthorizationContextAsync(request.ReturnUrl);
-
+        {   
             if (button != "login")
             {
+                var context = await _interaction.GetAuthorizationContextAsync(request.ReturnUrl);
+
                 if (context == null)
                     return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
 
@@ -132,7 +132,7 @@ namespace SIO.Identity.Login
                 return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
             }
 
-            return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
+            return View(await BuildResponseAsync(null));
         }
 
         private async Task<LoginResponse> BuildResponseAsync(string returnUrl)

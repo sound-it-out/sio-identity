@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using OpenEventSourcing.EntityFrameworkCore.InMemory;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
@@ -91,6 +93,12 @@ namespace SIO.Identity.Tests
 
             identityServer.AddDeveloperSigningCredential();
 
+            var configuration = new Mock<IConfiguration>();
+            var section = new Mock<IConfigurationSection>();
+            section.SetupGet(s => s.Value).Returns("https://localhost/mock");
+            configuration.Setup(c => c.GetSection(It.Is<string>((s) => s == "DefaultAppUrl"))).Returns(section.Object);
+
+            services.AddSingleton(configuration.Object);
             services.AddTransient<TController>();
 
             serviceProvider = services.BuildServiceProvider();
