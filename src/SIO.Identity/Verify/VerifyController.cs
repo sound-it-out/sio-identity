@@ -15,23 +15,19 @@ namespace SIO.Identity.Verify
     {
         private readonly UserManager<SIOUser> _userManager;
         private readonly SignInManager<SIOUser> _signInManager;
-        private readonly IEventBus _eventBus;
         private readonly IConfiguration _configuration;
 
-        public VerifyController(UserManager<SIOUser> userManager, SignInManager<SIOUser> signInManager, IEventBus eventBus, IConfiguration configuration)
+        public VerifyController(UserManager<SIOUser> userManager, SignInManager<SIOUser> signInManager, IConfiguration configuration)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
             if (signInManager == null)
                 throw new ArgumentNullException(nameof(signInManager));
-            if (eventBus == null)
-                throw new ArgumentNullException(nameof(eventBus));
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
             _userManager = userManager;
             _signInManager = signInManager;
-            _eventBus = eventBus;
             _configuration = configuration;
         }
 

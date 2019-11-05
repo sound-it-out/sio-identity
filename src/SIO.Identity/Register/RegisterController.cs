@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using OpenEventSourcing.Commands;
-using SIO.Domain.User.Commands;
 using SIO.Identity.Register.Requests;
 using SIO.Migrations;
 
@@ -12,20 +10,15 @@ namespace SIO.Identity.Register
 {
     public class RegisterController: Controller
     {
-        private readonly ICommandDispatcher _commandDispatcher;
         private readonly IConfiguration _configuration;
         private readonly UserManager<SIOUser> _userManager;
 
-        public RegisterController(ICommandDispatcher commandDispatcher, IConfiguration configuration, UserManager<SIOUser> userManager)
+        public RegisterController(IConfiguration configuration, UserManager<SIOUser> userManager)
         {
-            if (commandDispatcher == null)
-                throw new ArgumentNullException(nameof(commandDispatcher));
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
-
-            _commandDispatcher = commandDispatcher;
             _configuration = configuration;
             _userManager = userManager;
         }
@@ -63,16 +56,25 @@ namespace SIO.Identity.Register
                 return View(request);
             }
 
-            await _commandDispatcher.DispatchAsync(new RegisterUserCommand(
-                aggregateId: Guid.NewGuid(),
-                correlationId: Guid.NewGuid(),
-                firstName: request.FirstName,
-                lastName: request.LastName,
-                email: request.Email,
-                roles: new string[] { },
-                version: 0,
-                userId: ""
-            ));
+            user = new SIOUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                Email = request.Email,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                UserName = request.Email,
+            };
+
+            var userResult = await _userManager.CreateAsync(user);
+
+            if (!userResult.Succeeded)
+            {
+                ModelState.AddModelError("", "There was an error completing registration,  please try again");
+
+                return View(request);
+            }               
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
             return RedirectToAction(nameof(Registered));
         }

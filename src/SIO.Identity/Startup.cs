@@ -26,9 +26,7 @@ namespace SIO.Identity
 
             services.AddOpenEventSourcing()
                 .AddEntityFrameworkCoreSqlServer()
-                .AddCommands()
                 .AddEvents()
-                .AddQueries()
                 .AddJsonSerializers();
             
             services.AddSIOIdentity();

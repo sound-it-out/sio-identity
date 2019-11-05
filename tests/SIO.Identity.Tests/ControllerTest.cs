@@ -30,9 +30,7 @@ namespace SIO.Identity.Tests
 
             services.AddOpenEventSourcing()
                 .AddEntityFrameworkCoreInMemory()
-                .AddCommands()
                 .AddEvents()
-                .AddQueries()
                 .AddJsonSerializers();
 
             var migrationsAssembly = typeof(SIOIdentityDbContext).Assembly.GetName().Name;
