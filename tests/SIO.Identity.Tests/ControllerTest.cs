@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using IdentityServer4;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using OpenEventSourcing.EntityFrameworkCore.InMemory;
 using OpenEventSourcing.Extensions;
@@ -98,13 +103,8 @@ namespace SIO.Identity.Tests
 
             services.AddSingleton(configuration.Object);
             services.AddTransient<TController>();
-
-            var httpContextMock = new Mock<HttpContext>();
-            var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-            
-            httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContextMock.Object);            
-            services.AddTransient(x => httpContextAccessorMock);
-            services.AddTransient(x => httpContextAccessorMock.Object);
+            services.RemoveAll<SignInManager<SIOUser>>();
+            services.AddSingleton<SignInManager<SIOUser>, MockSignInManager>();
 
             serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TController>();
