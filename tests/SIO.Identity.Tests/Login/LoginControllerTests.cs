@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace SIO.Identity.Tests.Login
     public class LoginControllerTests : ControllerTest<LoginController>
     {
         [Fact]
-        public async Task Login_GET_Should_Redirect_When_Return_Url_Is_Not_Null()
+        public async Task Login_GET_Should_Redirect_To_Return_Url_When_User_Is_Authenticated()
         {
             var controller = BuildController(out var serviceProvider);
 
@@ -44,6 +45,36 @@ namespace SIO.Identity.Tests.Login
             var result = await controller.Login(mockReturnUrl);
             result.Should().BeOfType<RedirectResult>();
             ((RedirectResult)result).Url.Should().Be(mockReturnUrl);
+        }
+
+        [Fact]
+        public async Task Login_GET_Should_Redirect_To_Default_App_Url_When_User_Is_Authenticated_And_Return_Url_Is_Invalid()
+        {
+            var controller = BuildController(out var serviceProvider);
+
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, "example name"),
+                        new Claim(ClaimTypes.NameIdentifier, "1"),
+                        new Claim("custom-claim", "example claim value"),
+                    }, "mock"))
+                }
+            };
+
+            var mockReturnUrl = "http://localhost/something";
+
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            mockUrlHelper.Setup(uh => uh.IsLocalUrl(It.Is<string>(s => s == mockReturnUrl))).Returns(true);
+
+            controller.Url = mockUrlHelper.Object;
+
+            var result = await controller.Login("invalid");
+            result.Should().BeOfType<RedirectResult>();
+            ((RedirectResult)result).Url.Should().Be("DefaultAppUrl");
         }
 
         [Fact]
@@ -314,8 +345,56 @@ namespace SIO.Identity.Tests.Login
             user.AccessFailedCount.Should().Be(0);
             result.Should().NotBeNull();
             result.Should().BeOfType<RedirectResult>();
-            ((RedirectResult)result).Url.Should().Be("https://localhost/mock");
+            ((RedirectResult)result).Url.Should().Be("DefaultAppUrl");
             controller.ModelState.IsValid.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Login_POST_Should_Redirect_To_Return_Url_When_Button_Is_Not_Login_And_Context_is_Not_Null()
+        {
+            var controller = BuildController(out var serviceProvider);
+            var interaction = (MockIdentityServerInteraction)serviceProvider.GetRequiredService<IIdentityServerInteractionService>();
+            interaction.HasAuthorizationContext = true;
+            var mockReturnUrl = "http://localhost/something";
+
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            mockUrlHelper.Setup(uh => uh.IsLocalUrl(It.Is<string>(s => s == mockReturnUrl))).Returns(true);
+
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.Url = mockUrlHelper.Object;
+
+            var request = new LoginRequest { Email = "test@sound-it-out.com", Password = "Asdf@123456789asdf", ReturnUrl = mockReturnUrl };
+            var result = await controller.Login(request, "test");
+            result.Should().NotBeNull();
+            result.Should().BeOfType<RedirectResult>();
+            ((RedirectResult)result).Url.Should().Be(mockReturnUrl);
+        }
+
+        [Fact]
+        public async Task Login_POST_Should_Redirect_To_Default_App_Url_When_Button_Is_Not_Login_And_Context_is_Null()
+        {
+            var controller = BuildController(out var serviceProvider);
+            var mockReturnUrl = "http://localhost/something";
+
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            mockUrlHelper.Setup(uh => uh.IsLocalUrl(It.Is<string>(s => s == mockReturnUrl))).Returns(true);
+
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.Url = mockUrlHelper.Object;
+
+            var request = new LoginRequest { Email = "test@sound-it-out.com", Password = "Asdf@123456789asdf", ReturnUrl = mockReturnUrl };
+            var result = await controller.Login(request, "test");
+            result.Should().NotBeNull();
+            result.Should().BeOfType<RedirectResult>();
+            ((RedirectResult)result).Url.Should().Be("DefaultAppUrl");
         }
     }
 }

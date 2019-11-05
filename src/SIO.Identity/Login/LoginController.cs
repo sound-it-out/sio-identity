@@ -81,9 +81,8 @@ namespace SIO.Identity.Login
 #pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
                     return Redirect(request.ReturnUrl);
 #pragma warning restore SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
-            }
-
-            if (ModelState.IsValid)
+            } 
+            else if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(request.Email);
 

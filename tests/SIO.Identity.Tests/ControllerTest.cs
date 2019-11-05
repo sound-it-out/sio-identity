@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using IdentityServer4;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Http;
@@ -98,14 +99,15 @@ namespace SIO.Identity.Tests
 
             var configuration = new Mock<IConfiguration>();
             var section = new Mock<IConfigurationSection>();
-            section.SetupGet(s => s.Value).Returns("https://localhost/mock");
+            section.SetupGet(s => s.Value).Returns("DefaultAppUrl");
             configuration.Setup(c => c.GetSection(It.Is<string>((s) => s == "DefaultAppUrl"))).Returns(section.Object);
 
             services.AddSingleton(configuration.Object);
             services.AddTransient<TController>();
             services.RemoveAll<SignInManager<SIOUser>>();
+            services.RemoveAll<IIdentityServerInteractionService>();
             services.AddSingleton<SignInManager<SIOUser>, MockSignInManager>();
-
+            services.AddSingleton<IIdentityServerInteractionService, MockIdentityServerInteraction>();
             serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TController>();
         }
