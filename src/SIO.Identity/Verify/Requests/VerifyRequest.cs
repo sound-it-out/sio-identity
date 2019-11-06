@@ -6,7 +6,7 @@ namespace SIO.Identity.Verify.Requests
 {
     public class VerifyRequest : IValidatableObject
     {
-        [Required]
+        [Required, EmailAddress]
         public string Email { get; set; }
         [Required]
         public string Token { get; set; }
