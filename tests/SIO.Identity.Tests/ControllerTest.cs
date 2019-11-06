@@ -105,6 +105,7 @@ namespace SIO.Identity.Tests
             services.RemoveAll<SignInManager<SIOUser>>();
             services.RemoveAll<IIdentityServerInteractionService>();
             services.AddSingleton<SignInManager<SIOUser>, MockSignInManager>();
+            services.AddSingleton<UserManager<SIOUser>, MockUserManager>();
             services.AddSingleton<IIdentityServerInteractionService, MockIdentityServerInteraction>();
             serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TController>();
