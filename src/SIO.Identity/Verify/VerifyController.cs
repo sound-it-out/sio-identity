@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using OpenEventSourcing.Events;
 using SIO.Identity.Verify.Requests;
-using SIO.Identity.Verify.Response;
 using SIO.Migrations;
 
 namespace SIO.Identity.Verify
@@ -58,7 +56,10 @@ namespace SIO.Identity.Verify
             var user = await _userManager.FindByEmailAsync(request.Email);
 
             if (user == null || user.IsArchived)
-                return Redirect("Error");
+            {
+                ModelState.AddModelError("", "There is no account linked to the supplied email");
+                return View(request);
+            }
 
             var confirmationResult = await _userManager.ConfirmEmailAsync(user, request.Token);
 
@@ -67,7 +68,7 @@ namespace SIO.Identity.Verify
                 foreach (var error in confirmationResult.Errors)
                     ModelState.AddModelError("", error.Description);
 
-                return Redirect("Error");
+                return View(request);
             }            
 
             var addPasswordResult = await _userManager.AddPasswordAsync(user, request.Password);
