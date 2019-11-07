@@ -1,0 +1,38 @@
+﻿
+@model SIO.Identity.Verify.Requests.VerifyRequest
+@{
+    Layout = "../../Shared/Views/_Layout";
+    ViewData["Title"] = "Verify";
+}
+
+<div class="row mb-3">
+    <div class="col text-center">
+        <img class="logo" src="~/img/logo.svg" />
+    </div>
+</div>
+
+<form class="form-signin text-center" asp-route="register" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Email" />
+    <input type="hidden" asp-for="Token" />
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mt-3"></div>
+
+            <div class="form-group mt-3">
+                <label for="passsword" class="sr-only">Password</label>
+                <input type="password" id="passsword" name="Password" class="form-control" placeholder="Password" required="" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="RePassword" class="sr-only">Re-enter password</label>
+                <input type="password" id="RePassword" name="RePassword" class="form-control" placeholder="Re-enter opassword" required="" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary btn-block" name="button" value="submit" type="submit">Verify account</button>
+            </div>
+        </div>
+    </div>
+</form>
