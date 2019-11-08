@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using OpenEventSourcing.Events;
+using SIO.Domain.User.Events;
 using SIO.Identity.Verify.Requests;
 using SIO.Migrations;
 
@@ -14,8 +16,9 @@ namespace SIO.Identity.Verify
         private readonly UserManager<SIOUser> _userManager;
         private readonly SignInManager<SIOUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly IEventBusPublisher _eventBusPublisher;
 
-        public VerifyController(UserManager<SIOUser> userManager, SignInManager<SIOUser> signInManager, IConfiguration configuration)
+        public VerifyController(UserManager<SIOUser> userManager, SignInManager<SIOUser> signInManager, IConfiguration configuration, IEventBusPublisher eventBusPublisher)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
@@ -23,10 +26,13 @@ namespace SIO.Identity.Verify
                 throw new ArgumentNullException(nameof(signInManager));
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
+            if (eventBusPublisher == null)
+                throw new ArgumentNullException(nameof(eventBusPublisher));
 
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _eventBusPublisher = eventBusPublisher;
         }
 
         [HttpGet("verify")]
@@ -81,8 +87,14 @@ namespace SIO.Identity.Verify
                 return View(request);
             }
 
+            var correlation = Guid.NewGuid();
+            await _eventBusPublisher.PublishAsync(new UserVerified(new Guid(user.Id), correlation, user.Version++, user.Id));
+
             await _signInManager.SignInAsync(user, false);
 
+            await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), correlation, user.Version++ + 1, user.Id));
+
+            await _userManager.UpdateAsync(user);
             return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
         }
     }

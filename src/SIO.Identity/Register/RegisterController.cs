@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using OpenEventSourcing.Events;
+using SIO.Domain.User.Events;
 using SIO.Identity.Register.Requests;
 using SIO.Migrations;
 
@@ -12,15 +14,20 @@ namespace SIO.Identity.Register
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<SIOUser> _userManager;
+        private readonly IEventBusPublisher _eventBusPublisher;
 
-        public RegisterController(IConfiguration configuration, UserManager<SIOUser> userManager)
+        public RegisterController(IConfiguration configuration, UserManager<SIOUser> userManager, IEventBusPublisher eventBusPublisher)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
+            if (userManager == null)
+                throw new ArgumentNullException(nameof(userManager));
+
             _configuration = configuration;
             _userManager = userManager;
+            _eventBusPublisher = eventBusPublisher;
         }
 
         [HttpGet("register")]
@@ -76,6 +83,8 @@ namespace SIO.Identity.Register
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
+            await _eventBusPublisher.PublishAsync(new UserRegistered(new Guid(user.Id), Guid.NewGuid(), user.Version++, user.Id, user.Email, user.FirstName, user.LastName, token));
+            await _userManager.UpdateAsync(user);
             return RedirectToAction(nameof(Registered));
         }
 

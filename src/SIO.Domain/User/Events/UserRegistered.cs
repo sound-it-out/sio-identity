@@ -10,12 +10,14 @@ namespace SIO.Domain.User.Events
         public string LastName { get; set; }
         public string ActivationToken { get; }
 
-        public UserRegistered(Guid aggregateId, string email, string firstName, string lastName, string activationToken) : base(aggregateId, 1)
+        public UserRegistered(Guid aggregateId, Guid correlationId, int version, string userId, string email, string firstName, string lastName, string activationToken) : base(aggregateId, 1)
         {
             Email = email;
             FirstName = firstName;
             LastName = lastName;
             ActivationToken = activationToken;
+            CorrelationId = correlationId;
+            UserId = userId;
         }
     }
 }
