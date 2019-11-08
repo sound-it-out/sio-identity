@@ -60,7 +60,9 @@ namespace SIO.Identity.ForgotPassword
 
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), 0, user.Id, token));
+                await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), user.Version++, user.Id, token));
+
+                await _userManager.UpdateAsync(user);
 
                 return RedirectToAction(nameof(ForgotPasswordSuccess));
             }

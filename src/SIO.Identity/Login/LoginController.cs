@@ -113,7 +113,9 @@ namespace SIO.Identity.Login
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), 0, user.Id, token));
+                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), user.Version++, user.Id, token));
+
+                    await _userManager.UpdateAsync(user);
 
                     return View(await BuildResponseAsync(null));
                 }
@@ -132,7 +134,9 @@ namespace SIO.Identity.Login
                 await _signInManager.SignInAsync(user, false);
                 await _userManager.ResetAccessFailedCountAsync(user);
 
-                await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), Guid.NewGuid(), user.Version, user.Id));
+                await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), Guid.NewGuid(), user.Version++, user.Id));
+
+                await _userManager.UpdateAsync(user);
 
                 if (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl))
 #pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'

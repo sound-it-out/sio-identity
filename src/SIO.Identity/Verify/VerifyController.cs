@@ -88,11 +88,13 @@ namespace SIO.Identity.Verify
             }
 
             var correlation = Guid.NewGuid();
-            await _eventBusPublisher.PublishAsync(new UserVerified(new Guid(user.Id), correlation, user.Version, user.Id));
+            await _eventBusPublisher.PublishAsync(new UserVerified(new Guid(user.Id), correlation, user.Version++, user.Id));
 
             await _signInManager.SignInAsync(user, false);
 
-            await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), correlation, user.Version + 1, user.Id));
+            await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), correlation, user.Version++ + 1, user.Id));
+
+            await _userManager.UpdateAsync(user);
             return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
         }
     }
