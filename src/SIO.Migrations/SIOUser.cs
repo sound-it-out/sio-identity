@@ -10,5 +10,6 @@ namespace SIO.Migrations
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public bool IsArchived { get; set; }
+        public int Version { get; set; }
     }
 }

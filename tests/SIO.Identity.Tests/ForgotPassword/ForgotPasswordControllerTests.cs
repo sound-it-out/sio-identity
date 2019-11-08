@@ -17,7 +17,7 @@ namespace SIO.Identity.Tests.ForgotPassword
         [InlineData("userManager")]
         public void Initialising_Controller_With_Null_Param_Should_Error(string param)
         {
-            Action createdController = () => new ForgotPasswordController(null);
+            Action createdController = () => new ForgotPasswordController(null, null);
             createdController.Should().Throw<ArgumentNullException>()
                 .WithMessage($@"Value cannot be null.
 Parameter name: {param}");

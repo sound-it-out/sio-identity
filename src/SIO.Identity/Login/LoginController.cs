@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using OpenEventSourcing.Events;
+using SIO.Domain.User.Events;
 using SIO.Identity.Login.Requests;
 using SIO.Identity.Login.Responses;
 using SIO.Migrations;
@@ -22,13 +24,15 @@ namespace SIO.Identity.Login
         private readonly IConfiguration _configuration;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IClientStore _clientStore;
+        private readonly IEventBusPublisher _eventBusPublisher;
 
         public LoginController(IIdentityServerInteractionService interaction,
             UserManager<SIOUser> userManager, 
             SignInManager<SIOUser> signInManager, 
             IConfiguration configuration,
             IAuthenticationSchemeProvider schemeProvider,
-            IClientStore clientStore)
+            IClientStore clientStore,
+            IEventBusPublisher eventBusPublisher)
         {
             if (interaction == null)
                 throw new ArgumentNullException(nameof(interaction));
@@ -42,6 +46,8 @@ namespace SIO.Identity.Login
                 throw new ArgumentNullException(nameof(schemeProvider));
             if (clientStore == null)
                 throw new ArgumentNullException(nameof(clientStore));
+            if (eventBusPublisher == null)
+                throw new ArgumentNullException(nameof(eventBusPublisher));
 
             _interaction = interaction;
             _userManager = userManager;
@@ -49,6 +55,7 @@ namespace SIO.Identity.Login
             _configuration = configuration;
             _schemeProvider = schemeProvider;
             _clientStore = clientStore;
+            _eventBusPublisher = eventBusPublisher;
         }
 
 
@@ -104,7 +111,9 @@ namespace SIO.Identity.Login
                 {
                     ModelState.AddModelError("", "Your account is not verified, but a new activation link has been sent to your email.");
 
-                    await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), 0, user.Id, token));
 
                     return View(await BuildResponseAsync(null));
                 }
@@ -122,6 +131,8 @@ namespace SIO.Identity.Login
 
                 await _signInManager.SignInAsync(user, false);
                 await _userManager.ResetAccessFailedCountAsync(user);
+
+                await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), Guid.NewGuid(), user.Version, user.Id));
 
                 if (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl))
 #pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'

@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OpenEventSourcing.Events;
+using SIO.Domain.User.Events;
 using SIO.Identity.ForgotPassword.Requests;
 using SIO.Migrations;
 
@@ -10,13 +12,17 @@ namespace SIO.Identity.ForgotPassword
     public class ForgotPasswordController : Controller
     {
         private readonly UserManager<SIOUser> _userManager;
+        private readonly IEventBusPublisher _eventBusPublisher;
 
-        public ForgotPasswordController(UserManager<SIOUser> userManager)
+        public ForgotPasswordController(UserManager<SIOUser> userManager, IEventBusPublisher eventBusPublisher)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
+            if (eventBusPublisher == null)
+                throw new ArgumentNullException(nameof(eventBusPublisher));
 
             _userManager = userManager;
+            _eventBusPublisher = eventBusPublisher;
         }
 
         [HttpGet("forgot-password")]
@@ -53,6 +59,8 @@ namespace SIO.Identity.ForgotPassword
                     return View(request);
 
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), 0, user.Id, token));
 
                 return RedirectToAction(nameof(ForgotPasswordSuccess));
             }

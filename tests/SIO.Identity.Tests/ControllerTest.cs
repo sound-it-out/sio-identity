@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using OpenEventSourcing.EntityFrameworkCore.InMemory;
+using OpenEventSourcing.Events;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using SIO.Migrations;
@@ -107,6 +108,7 @@ namespace SIO.Identity.Tests
             services.AddSingleton<SignInManager<SIOUser>, MockSignInManager>();
             services.AddSingleton<UserManager<SIOUser>, MockUserManager>();
             services.AddSingleton<IIdentityServerInteractionService, MockIdentityServerInteraction>();
+            services.AddTransient<IEventBusPublisher, MockEventBusPublisher>();
             serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TController>();
         }
