@@ -14,7 +14,7 @@ using Xunit;
 
 namespace SIO.Identity.Tests.Register
 {
-    public class RegisterControllerTests : ControllerTest<RegisterController>
+    public class RegisterControllerTests : ControllerTests<RegisterController>
     {
         [Fact]
         public void Register_GET_Should_Redirect_To_Default_App_Url_When_User_Is_Authenticated()

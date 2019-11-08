@@ -15,7 +15,7 @@ using Xunit;
 
 namespace SIO.Identity.Tests.Login
 {
-    public class LoginControllerTests : ControllerTest<LoginController>
+    public class LoginControllerTests : ControllerTests<LoginController>
     {
         [Fact]
         public async Task Login_GET_Should_Redirect_To_Return_Url_When_User_Is_Authenticated()
