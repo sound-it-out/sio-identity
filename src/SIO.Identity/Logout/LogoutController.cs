@@ -22,7 +22,7 @@ namespace SIO.Identity.Logout
         private readonly SignInManager<SIOUser> _signInManager;
         private readonly UserManager<SIOUser> _userManager;
 
-        public LogoutController(IEventBusPublisher eventBusPublisher, IIdentityServerInteractionService interaction, IPersistedGrantService persistedGrantService, SignInManager<SIOUser> signInManager)
+        public LogoutController(IEventBusPublisher eventBusPublisher, IIdentityServerInteractionService interaction, IPersistedGrantService persistedGrantService, SignInManager<SIOUser> signInManager, UserManager<SIOUser> userManager)
         {
             if (eventBusPublisher == null)
                 throw new ArgumentNullException(nameof(eventBusPublisher));
@@ -32,11 +32,14 @@ namespace SIO.Identity.Logout
                 throw new ArgumentNullException(nameof(persistedGrantService));
             if (signInManager == null)
                 throw new ArgumentNullException(nameof(signInManager));
+            if (userManager == null)
+                throw new ArgumentNullException(nameof(userManager));
 
             _eventBusPublisher = eventBusPublisher;
             _interaction = interaction;
             _persistedGrantService = persistedGrantService;
             _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         [HttpGet("logout")]

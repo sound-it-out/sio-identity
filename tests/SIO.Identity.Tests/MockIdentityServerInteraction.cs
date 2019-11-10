@@ -14,7 +14,7 @@ namespace SIO.Identity.Tests
 
         public Task<string> CreateLogoutContextAsync()
         {
-            throw new NotImplementedException();
+            return Task.FromResult("MockLogoutId");
         }
 
         public Task<IEnumerable<Consent>> GetAllUserConsentsAsync()
@@ -37,7 +37,10 @@ namespace SIO.Identity.Tests
 
         public Task<LogoutRequest> GetLogoutContextAsync(string logoutId)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new LogoutRequest("", new LogoutMessage())
+            {
+                ClientId = "clientId"
+            });
         }
 
         public Task GrantConsentAsync(AuthorizationRequest request, ConsentResponse consent, string subject = null)
