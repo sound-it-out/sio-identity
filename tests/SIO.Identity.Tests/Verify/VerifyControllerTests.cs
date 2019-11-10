@@ -16,7 +16,7 @@ using Xunit;
 
 namespace SIO.Identity.Tests.Verify
 {
-    public class VerifyControllerTests : ControllerTest<VerifyController>
+    public class VerifyControllerTests : ControllerTests<VerifyController>
     {
         [Fact]
         public void Verify_GET_Should_Error_When_Email_Is_Null()

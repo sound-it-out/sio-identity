@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +15,11 @@ namespace SIO.Identity.Tests
         }
 
         public override Task SignInAsync(SIOUser user, bool isPersistent, string authenticationMethod = null)
+        {
+            return Task.CompletedTask;
+        }
+
+        public override Task SignOutAsync()
         {
             return Task.CompletedTask;
         }

@@ -22,7 +22,7 @@ using SIO.Migrations;
 
 namespace SIO.Identity.Tests
 {
-    public class ControllerTest<TController>
+    public class ControllerTests<TController>
         where TController : Controller
     {
         protected TController BuildController(out IServiceProvider serviceProvider) 

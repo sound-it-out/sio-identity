@@ -11,7 +11,7 @@ using Xunit;
 
 namespace SIO.Identity.Tests.ForgotPassword
 {
-    public class ForgotPasswordControllerTests : ControllerTest<ForgotPasswordController>
+    public class ForgotPasswordControllerTests : ControllerTests<ForgotPasswordController>
     {
         [Theory]
         [InlineData("userManager")]
