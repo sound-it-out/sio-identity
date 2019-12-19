@@ -9,6 +9,7 @@ using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.EntityFrameworkCore.SqlServer;
 using SIO.Migrations;
 using OpenEventSourcing.RabbitMQ.Extensions;
+using SIO.Domain.User.Events;
 
 namespace SIO.Identity
 {
@@ -26,6 +27,7 @@ namespace SIO.Identity
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddOpenEventSourcing()
                 .AddEntityFrameworkCoreSqlServer()
+
                 .AddRabbitMq(options =>
                 {
                     options.UseConnection(Configuration.GetValue<string>("RabbitMQ:Connection"))

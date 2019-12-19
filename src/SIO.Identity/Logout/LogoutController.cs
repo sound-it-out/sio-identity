@@ -74,9 +74,8 @@ namespace SIO.Identity.Logout
             await _persistedGrantService.RemoveAllGrantsAsync(subjectId, logout?.ClientId);
 
             var user = await _userManager.FindByIdAsync(subjectId);
-            user.Version++;
             await _userManager.UpdateAsync(user);
-            await _eventBusPublisher.PublishAsync(new UserLoggedOut(new Guid(subjectId), Guid.NewGuid(), user.Version, subjectId));
+            await _eventBusPublisher.PublishAsync(new UserLoggedOut(new Guid(subjectId), Guid.NewGuid(), subjectId));
 
             return View(nameof(LoggedOut));
         }

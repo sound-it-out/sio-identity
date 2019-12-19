@@ -16,6 +16,10 @@ namespace SIO.Identity
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+            .UseDefaultServiceProvider((context) =>
+            {
+                context.ValidateScopes = false;
+            })
+            .UseStartup<Startup>();
     }
 }

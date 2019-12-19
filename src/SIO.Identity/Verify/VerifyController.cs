@@ -67,7 +67,7 @@ namespace SIO.Identity.Verify
                 return View(request);
             }
 
-            var confirmationResult = await _userManager.ConfirmEmailAsync(user, request.Token);
+            var confirmationResult = await _userManager.ConfirmEmailAsync(user, Encoding.UTF8.GetString(Convert.FromBase64String(request.Token)));
 
             if (!confirmationResult.Succeeded)
             {
@@ -88,11 +88,11 @@ namespace SIO.Identity.Verify
             }
 
             var correlation = Guid.NewGuid();
-            await _eventBusPublisher.PublishAsync(new UserVerified(new Guid(user.Id), correlation, user.Version++, user.Id));
+            await _eventBusPublisher.PublishAsync(new UserVerified(new Guid(user.Id), correlation, user.Id));
 
             await _signInManager.SignInAsync(user, false);
 
-            await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), correlation, user.Version++ + 1, user.Id));
+            await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), correlation, user.Id));
 
             await _userManager.UpdateAsync(user);
             return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));

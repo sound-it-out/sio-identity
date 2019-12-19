@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace SIO.Migrations
 {
@@ -10,6 +7,5 @@ namespace SIO.Migrations
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public bool IsArchived { get; set; }
-        public int Version { get; set; }
     }
 }

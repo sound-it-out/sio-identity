@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using IdentityServer4;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -95,6 +96,10 @@ namespace SIO.Identity
                 options.RequireHttpsMetadata = false;
 #endif
             });
+
+            services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(1));
+            services.AddDataProtection()
+                .SetApplicationName("sio-identity");
 
             if (!environment.IsProduction())
                 identityServer.AddDeveloperSigningCredential();

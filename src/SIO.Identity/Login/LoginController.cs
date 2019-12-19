@@ -113,7 +113,7 @@ namespace SIO.Identity.Login
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), user.Version++, user.Id, token));
+                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), user.Id, token));
 
                     await _userManager.UpdateAsync(user);
 
@@ -134,7 +134,7 @@ namespace SIO.Identity.Login
                 await _signInManager.SignInAsync(user, false);
                 await _userManager.ResetAccessFailedCountAsync(user);
 
-                await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), Guid.NewGuid(), user.Version++, user.Id));
+                await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), Guid.NewGuid(), user.Id));
 
                 await _userManager.UpdateAsync(user);
 
