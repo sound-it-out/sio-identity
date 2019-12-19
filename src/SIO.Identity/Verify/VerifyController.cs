@@ -72,7 +72,7 @@ namespace SIO.Identity.Verify
             if (!confirmationResult.Succeeded)
             {
                 foreach (var error in confirmationResult.Errors)
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError("s", error.Description);
 
                 return View(request);
             }            

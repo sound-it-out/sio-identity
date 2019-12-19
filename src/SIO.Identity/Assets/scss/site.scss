@@ -11,3 +11,7 @@ $enable-rounded: true;
     max-width: 16rem;
     width: 100%;
 }
+
+.validation-summary-errors ul {
+    margin-bottom: 0;
+}
