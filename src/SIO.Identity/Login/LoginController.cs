@@ -113,7 +113,7 @@ namespace SIO.Identity.Login
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(new Guid(user.Id), Guid.NewGuid(), user.Id, token));
+                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(Guid.Parse(user.Id), Guid.NewGuid(), user.Id, token));
 
                     await _userManager.UpdateAsync(user);
 

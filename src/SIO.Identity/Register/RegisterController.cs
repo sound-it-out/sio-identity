@@ -83,7 +83,7 @@ namespace SIO.Identity.Register
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            await _eventBusPublisher.PublishAsync(new UserRegistered(new Guid(user.Id), Guid.NewGuid(), user.Id, user.Email, user.FirstName, user.LastName, token));
+            await _eventBusPublisher.PublishAsync(new UserRegistered(Guid.Parse(user.Id), Guid.NewGuid(), user.Id, user.Email, user.FirstName, user.LastName, token));
             await _userManager.UpdateAsync(user);
             return RedirectToAction(nameof(Registered));
         }

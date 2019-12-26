@@ -75,7 +75,7 @@ namespace SIO.Identity.Logout
 
             var user = await _userManager.FindByIdAsync(subjectId);
             await _userManager.UpdateAsync(user);
-            await _eventBusPublisher.PublishAsync(new UserLoggedOut(new Guid(subjectId), Guid.NewGuid(), subjectId));
+            await _eventBusPublisher.PublishAsync(new UserLoggedOut(Guid.Parse(subjectId), Guid.NewGuid(), subjectId));
 
             return View(nameof(LoggedOut));
         }

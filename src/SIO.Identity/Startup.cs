@@ -51,6 +51,15 @@ namespace SIO.Identity
             {
                 o.ViewLocationFormats.Add($"/{{1}}/Views/{{0}}{RazorViewEngine.ViewExtension}");
             });
+
+            services.AddCors(options =>
+                     options.AddPolicy("cors", builder =>
+                     {
+                         builder.WithOrigins(Configuration.GetValue<string>("DefaultAppUrl"))
+                                .AllowAnyMethod()
+                                .AllowCredentials()
+                                .AllowAnyHeader();
+                     }));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -64,6 +73,7 @@ namespace SIO.Identity
                 app.UseHsts();
             }
 
+            app.UseCors("cors");
             app.UseIdentityServer();
 
             app.UseHttpsRedirection();
