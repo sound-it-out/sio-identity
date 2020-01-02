@@ -63,7 +63,7 @@ namespace SIO.Identity.Login
         public async Task<IActionResult> Login(string returnUrl)
         {
             if (User.Identity.IsAuthenticated)
-                if (_interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
+                if (!string.IsNullOrEmpty(returnUrl) && (_interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl)))
                     return Redirect(returnUrl);
                 else
                     return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
@@ -84,7 +84,7 @@ namespace SIO.Identity.Login
 
                 await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
 
-                if (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl))
+                if (!string.IsNullOrEmpty(request.ReturnUrl) && (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl)))
 #pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
                     return Redirect(request.ReturnUrl);
 #pragma warning restore SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
@@ -138,7 +138,7 @@ namespace SIO.Identity.Login
 
                 await _userManager.UpdateAsync(user);
 
-                if (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl))
+                if (!string.IsNullOrEmpty(request.ReturnUrl) && (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl)))
 #pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
                     return Redirect(request.ReturnUrl);
 #pragma warning restore SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'

@@ -12,11 +12,11 @@
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.5.3" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="OpenEventSourcing" Version="0.3.0" />
-    <PackageReference Include="OpenEventSourcing.Azure.ServiceBus" Version="0.3.0" />
-    <PackageReference Include="OpenEventSourcing.EntityFrameworkCore.SqlServer" Version="0.3.0" />
-    <PackageReference Include="OpenEventSourcing.Serialization.Json" Version="0.3.0" />
-    <PackageReference Include="OpenEventSourcing.RabbitMQ" Version="0.3.0" />
+    <PackageReference Include="OpenEventSourcing" Version="0.4.0" />
+    <PackageReference Include="OpenEventSourcing.Azure.ServiceBus" Version="0.4.0" />
+    <PackageReference Include="OpenEventSourcing.EntityFrameworkCore.SqlServer" Version="0.4.0" />
+    <PackageReference Include="OpenEventSourcing.Serialization.Json" Version="0.4.0" />
+    <PackageReference Include="OpenEventSourcing.RabbitMQ" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>

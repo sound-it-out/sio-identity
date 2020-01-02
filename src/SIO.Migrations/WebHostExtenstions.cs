@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OpenEventSourcing.EntityFrameworkCore.DbContexts;
 
 namespace SIO.Migrations
 {
@@ -24,11 +25,15 @@ namespace SIO.Migrations
                 var persistedGrantContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
                 var configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 var identityContext = scope.ServiceProvider.GetRequiredService<SIOIdentityDbContext>();
+                var storeContext = scope.ServiceProvider.GetRequiredService<OpenEventSourcingDbContext>();
+                var projectionContext = scope.ServiceProvider.GetRequiredService<OpenEventSourcingProjectionDbContext>();
                 var config = scope.ServiceProvider.GetRequiredService<IOptions<IdentityConfig>>().Value;
 
                 persistedGrantContext.Database.Migrate();
                 configurationDbContext.Database.Migrate();
                 identityContext.Database.Migrate();
+                storeContext.Database.Migrate();
+                projectionContext.Database.Migrate();
 
                 var identityResources = new IdentityResource[]
                 {
