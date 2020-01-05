@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
+using SIO.Domain.User.Commands;
 using SIO.Domain.User.Events;
 using SIO.Identity.Register.Requests;
 using SIO.Migrations;
@@ -13,21 +15,17 @@ namespace SIO.Identity.Register
     public class RegisterController: Controller
     {
         private readonly IConfiguration _configuration;
-        private readonly UserManager<SIOUser> _userManager;
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly ICommandDispatcher _commandDispatcher;
 
-        public RegisterController(IConfiguration configuration, UserManager<SIOUser> userManager, IEventBusPublisher eventBusPublisher)
+        public RegisterController(IConfiguration configuration, ICommandDispatcher commandDispatcher)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
-            if (userManager == null)
-                throw new ArgumentNullException(nameof(userManager));
-            if (userManager == null)
-                throw new ArgumentNullException(nameof(userManager));
+            if (commandDispatcher == null)
+                throw new ArgumentNullException(nameof(commandDispatcher));
 
             _configuration = configuration;
-            _userManager = userManager;
-            _eventBusPublisher = eventBusPublisher;
+            _commandDispatcher = commandDispatcher;
         }
 
         [HttpGet("register")]
@@ -46,45 +44,26 @@ namespace SIO.Identity.Register
             if (request == null || !ModelState.IsValid)
                 return View(request);
 
-            var user = await _userManager.FindByEmailAsync(request.Email);
-
-            if (user != null)
+            try
             {
-                if (user.EmailConfirmed)
-                {
-                    ModelState.AddModelError("", "Email is already in use");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Your account is not verified, but a new activation link has been sent to your email.");
-                    await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                }
-
-                return View(request);
+                await _commandDispatcher.DispatchAsync(new RegisterUserCommand(Guid.NewGuid(), Guid.NewGuid(), 0, "", request.Email, request.FirstName, request.LastName));
             }
-
-            user = new SIOUser
+            catch(EmailInUseException)
             {
-                Id = Guid.NewGuid().ToString(),
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                UserName = request.Email,
-            };
-
-            var userResult = await _userManager.CreateAsync(user);
-
-            if (!userResult.Succeeded)
+                ModelState.AddModelError("", "Email is already in use");
+            }
+            catch(UserNotVerifiedException)
+            {
+                ModelState.AddModelError("", "Your account is not verified, but a new activation link has been sent to your email.");
+            }
+            catch(UserCreationException)
             {
                 ModelState.AddModelError("", "There was an error completing registration,  please try again");
+            }
 
+            if(!ModelState.IsValid)
                 return View(request);
-            }               
 
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            await _eventBusPublisher.PublishAsync(new UserRegistered(Guid.Parse(user.Id), Guid.NewGuid(), user.Id, user.Email, user.FirstName, user.LastName, token));
-            await _userManager.UpdateAsync(user);
             return RedirectToAction(nameof(Registered));
         }
 

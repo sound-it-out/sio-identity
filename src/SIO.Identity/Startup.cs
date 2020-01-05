@@ -43,6 +43,7 @@ namespace SIO.Identity
                             m.WithCredentials(Configuration.GetValue<string>("RabbitMQ:ManagementApi:Username"), Configuration.GetValue<string>("RabbitMQ:ManagementApi:Password"));
                         });
                 })
+                .AddCommands()
                 .AddEvents()
                 .AddJsonSerializers();
             
