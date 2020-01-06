@@ -27,6 +27,7 @@ namespace SIO.Identity.Tests
         protected readonly TController _controller;
         protected readonly IServiceProvider _serviceProvider;
         protected readonly List<IEvent> _events = new List<IEvent>();
+        protected readonly Mock<IConfiguration> _configuration;
 
         protected TResult Result { get; private set; }
 
@@ -39,6 +40,7 @@ namespace SIO.Identity.Tests
 
             services.AddOpenEventSourcing()
                 .AddEntityFrameworkCoreInMemory()
+                .AddCommands()
                 .AddEvents()
                 .AddJsonSerializers();
 
@@ -104,12 +106,9 @@ namespace SIO.Identity.Tests
 
             identityServer.AddDeveloperSigningCredential();
 
-            var configuration = new Mock<IConfiguration>();
-            var section = new Mock<IConfigurationSection>();
-            section.SetupGet(s => s.Value).Returns("DefaultAppUrl");
-            configuration.Setup(c => c.GetSection(It.Is<string>((s) => s == "DefaultAppUrl"))).Returns(section.Object);
+            _configuration = new Mock<IConfiguration>();
 
-            services.AddSingleton(configuration.Object);
+            services.AddSingleton(_configuration.Object);
             services.AddTransient<TController>();
             services.RemoveAll<SignInManager<SIOUser>>();
             services.RemoveAll<IIdentityServerInteractionService>();

@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
+using SIO.Domain.User.Commands;
 using SIO.Domain.User.Events;
 using SIO.Identity.Login.Requests;
 using SIO.Identity.Login.Responses;
@@ -20,42 +22,37 @@ namespace SIO.Identity.Login
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly UserManager<SIOUser> _userManager;
-        private readonly SignInManager<SIOUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IClientStore _clientStore;
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly ICommandDispatcher _commandDispatcher;
 
         public LoginController(IIdentityServerInteractionService interaction,
             UserManager<SIOUser> userManager, 
-            SignInManager<SIOUser> signInManager, 
             IConfiguration configuration,
             IAuthenticationSchemeProvider schemeProvider,
             IClientStore clientStore,
-            IEventBusPublisher eventBusPublisher)
+            ICommandDispatcher commandDispatcher)
         {
             if (interaction == null)
                 throw new ArgumentNullException(nameof(interaction));
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
-            if (signInManager == null)
-                throw new ArgumentNullException(nameof(signInManager));
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
             if (schemeProvider == null)
                 throw new ArgumentNullException(nameof(schemeProvider));
             if (clientStore == null)
                 throw new ArgumentNullException(nameof(clientStore));
-            if (eventBusPublisher == null)
-                throw new ArgumentNullException(nameof(eventBusPublisher));
+            if (commandDispatcher == null)
+                throw new ArgumentNullException(nameof(commandDispatcher));
 
             _interaction = interaction;
             _userManager = userManager;
-            _signInManager = signInManager;
             _configuration = configuration;
             _schemeProvider = schemeProvider;
             _clientStore = clientStore;
-            _eventBusPublisher = eventBusPublisher;
+            _commandDispatcher = commandDispatcher;
         }
 
 
@@ -74,7 +71,10 @@ namespace SIO.Identity.Login
         [HttpPost("login")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginRequest request, string button)
-        {   
+        {
+            if (!ModelState.IsValid)
+                return View(await BuildResponseAsync(null));
+
             if (button != "login")
             {
                 var context = await _interaction.GetAuthorizationContextAsync(request.ReturnUrl);
@@ -88,65 +88,50 @@ namespace SIO.Identity.Login
 #pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
                     return Redirect(request.ReturnUrl);
 #pragma warning restore SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
-            } 
-            else if (ModelState.IsValid)
-            {
-                var user = await _userManager.FindByEmailAsync(request.Email);
-
-                if (user == null)
-                {
-                    ModelState.AddModelError("", "Please ensure that your username and password are correct.");
-
-                    return View(await BuildResponseAsync(null));
-                }
-
-                if (await _userManager.IsLockedOutAsync(user))
-                {
-                    ModelState.AddModelError("", "Your account has been locked please try again in a few minutes");
-
-                    return View(await BuildResponseAsync(null));
-                }
-
-                if (!user.EmailConfirmed)
-                {
-                    ModelState.AddModelError("", "Your account is not verified, but a new activation link has been sent to your email.");
-
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                    await _eventBusPublisher.PublishAsync(new UserPasswordTokenGenerated(Guid.Parse(user.Id), Guid.NewGuid(), user.Id, token));
-
-                    await _userManager.UpdateAsync(user);
-
-                    return View(await BuildResponseAsync(null));
-                }
-
-                var validLogin = await _userManager.CheckPasswordAsync(user, request.Password);
-
-
-                if (!validLogin || user.IsArchived)
-                {
-                    await _userManager.AccessFailedAsync(user);
-                    ModelState.AddModelError("", "Please ensure that your username and password are correct.");
-
-                    return View(await BuildResponseAsync(null));
-                }
-
-                await _signInManager.SignInAsync(user, false);
-                await _userManager.ResetAccessFailedCountAsync(user);
-
-                await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), Guid.NewGuid(), user.Id));
-
-                await _userManager.UpdateAsync(user);
-
-                if (!string.IsNullOrEmpty(request.ReturnUrl) && (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl)))
-#pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
-                    return Redirect(request.ReturnUrl);
-#pragma warning restore SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
-
-                return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
             }
 
-            return View(await BuildResponseAsync(null));
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            if(user == null)
+            {
+                ModelState.AddModelError("", "Please ensure that your username and password are correct.");
+                return View(await BuildResponseAsync(null));
+            }                
+
+            try
+            {
+                await _commandDispatcher.DispatchAsync(new LoginCommand(new Guid(user.Id), Guid.NewGuid(), 0, user.Id, request.Password));
+            }
+            catch(UserDoesntExistException)
+            {
+                ModelState.AddModelError("", "Please ensure that your username and password are correct.");
+            }
+            catch(UserIsLockedOutException)
+            {
+                ModelState.AddModelError("", "Your account has been locked please try again in a few minutes");
+            }
+            catch(UserNotVerifiedException)
+            {
+                ModelState.AddModelError("", "Your account is not verified, but a new activation link has been sent to your email.");
+            }
+            catch(UserIsArchivedException)
+            {
+                ModelState.AddModelError("", "Your account is deactivated");
+            }
+            catch(IncorrectPasswordException)
+            {
+                ModelState.AddModelError("", "Please ensure that your username and password are correct.");
+            }
+
+            if(!ModelState.IsValid)
+                return View(await BuildResponseAsync(null));
+
+            if (!string.IsNullOrEmpty(request.ReturnUrl) && (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl)))
+#pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
+                return Redirect(request.ReturnUrl);
+#pragma warning restore SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'
+
+            return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
         }
 
         private async Task<LoginResponse> BuildResponseAsync(string returnUrl)

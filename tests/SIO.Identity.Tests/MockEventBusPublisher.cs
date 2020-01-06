@@ -8,6 +8,11 @@ namespace SIO.Identity.Tests
     {
         private readonly List<IEvent> _events;
 
+        public MockEventBusPublisher()
+        {
+            _events = new List<IEvent>();
+        }
+
         public MockEventBusPublisher(List<IEvent> events)
         {
             _events = events;
