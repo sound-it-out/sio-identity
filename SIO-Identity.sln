@@ -26,7 +26,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIO.Domain", "src\SIO.Domai
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIO.Migrations", "src\SIO.Migrations\SIO.Migrations.csproj", "{511423FB-C919-4B86-8E05-0488142E05DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIO.Identity.Tests", "tests\SIO.Identity.Tests\SIO.Identity.Tests.csproj", "{1F08BC01-9F55-43FC-890A-0B67130E8A97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIO.Identity.Tests", "tests\SIO.Identity.Tests\SIO.Identity.Tests.csproj", "{1F08BC01-9F55-43FC-890A-0B67130E8A97}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIO.Infrastructure", "src\SIO.Infrastructure\SIO.Infrastructure.csproj", "{ABDB42A4-223B-4527-BBAD-602ECCBE88E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{1F08BC01-9F55-43FC-890A-0B67130E8A97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F08BC01-9F55-43FC-890A-0B67130E8A97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F08BC01-9F55-43FC-890A-0B67130E8A97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABDB42A4-223B-4527-BBAD-602ECCBE88E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABDB42A4-223B-4527-BBAD-602ECCBE88E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABDB42A4-223B-4527-BBAD-602ECCBE88E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABDB42A4-223B-4527-BBAD-602ECCBE88E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{86E78C2E-256C-4DB1-9743-1EB1693B5046} = {93241E08-D16C-4DA4-8FE1-EB557F1C0456}
 		{511423FB-C919-4B86-8E05-0488142E05DB} = {93241E08-D16C-4DA4-8FE1-EB557F1C0456}
 		{1F08BC01-9F55-43FC-890A-0B67130E8A97} = {79658CA3-C775-4A25-92AB-213294FF895F}
+		{ABDB42A4-223B-4527-BBAD-602ECCBE88E3} = {93241E08-D16C-4DA4-8FE1-EB557F1C0456}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F6AEAE19-668A-4D7C-9EC0-F5623B5D21A2}

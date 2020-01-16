@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AutoMapper.Configuration;
 using Microsoft.AspNetCore.Identity;
 using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.User.Commands;
 using SIO.Domain.User.Events;
+using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
 namespace SIO.Domain.User.CommandHandlers
@@ -13,9 +12,9 @@ namespace SIO.Domain.User.CommandHandlers
     internal class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand>
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly IEventPublisher _eventPublisher;
 
-        public RegisterUserCommandHandler(UserManager<SIOUser> userManager, IEventBusPublisher eventBusPublisher)
+        public RegisterUserCommandHandler(UserManager<SIOUser> userManager, IEventPublisher eventPublisher)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
@@ -23,7 +22,7 @@ namespace SIO.Domain.User.CommandHandlers
                 throw new ArgumentNullException(nameof(userManager));
 
             _userManager = userManager;
-            _eventBusPublisher = eventBusPublisher;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task ExecuteAsync(RegisterUserCommand command)
@@ -65,8 +64,14 @@ namespace SIO.Domain.User.CommandHandlers
 
             var userRegisteredEvent = new UserRegistered(Guid.Parse(user.Id), Guid.NewGuid(), user.Id, user.Email, user.FirstName, user.LastName, token);
             userRegisteredEvent.UpdateFrom(command);
-   
-            await _eventBusPublisher.PublishAsync(userRegisteredEvent);
+            try
+            {
+                await _eventPublisher.PublishAsync(userRegisteredEvent);
+            }            
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

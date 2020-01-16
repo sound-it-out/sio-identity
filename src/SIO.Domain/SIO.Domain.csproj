@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SIO.Infrastructure\SIO.Infrastructure.csproj" />
     <ProjectReference Include="..\SIO.Migrations\SIO.Migrations.csproj" />
   </ItemGroup>
 

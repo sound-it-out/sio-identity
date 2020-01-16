@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SIO.Domain\SIO.Domain.csproj" />
+    <ProjectReference Include="..\SIO.Infrastructure\SIO.Infrastructure.csproj" />
     <ProjectReference Include="..\SIO.Migrations\SIO.Migrations.csproj" />
   </ItemGroup>
 

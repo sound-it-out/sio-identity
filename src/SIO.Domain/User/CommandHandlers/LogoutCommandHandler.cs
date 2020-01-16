@@ -3,24 +3,24 @@ using System.Threading.Tasks;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.User.Commands;
 using SIO.Domain.User.Events;
+using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
 namespace SIO.Domain.User.CommandHandlers
 {
     internal class LogoutCommandHandler : ICommandHandler<LogoutCommand>
     {
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly IEventPublisher _eventPublisher;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly SignInManager<SIOUser> _signInManager;
 
-        public LogoutCommandHandler(IEventBusPublisher eventBusPublisher, IIdentityServerInteractionService interaction, IPersistedGrantService persistedGrantService, SignInManager<SIOUser> signInManager)
+        public LogoutCommandHandler(IEventPublisher eventPublisher, IIdentityServerInteractionService interaction, IPersistedGrantService persistedGrantService, SignInManager<SIOUser> signInManager)
         {
-            if (eventBusPublisher == null)
-                throw new ArgumentNullException(nameof(eventBusPublisher));
+            if (eventPublisher == null)
+                throw new ArgumentNullException(nameof(eventPublisher));
             if (interaction == null)
                 throw new ArgumentNullException(nameof(interaction));
             if (persistedGrantService == null)
@@ -28,7 +28,7 @@ namespace SIO.Domain.User.CommandHandlers
             if (signInManager == null)
                 throw new ArgumentNullException(nameof(signInManager));
 
-            _eventBusPublisher = eventBusPublisher;
+            _eventPublisher = eventPublisher;
             _interaction = interaction;
             _persistedGrantService = persistedGrantService;
             _signInManager = signInManager;
@@ -45,7 +45,7 @@ namespace SIO.Domain.User.CommandHandlers
             var userLoggedOutEvent = new UserLoggedOut(command.AggregateId, Guid.NewGuid(), command.AggregateId.ToString());
             userLoggedOutEvent.UpdateFrom(command);
 
-            await _eventBusPublisher.PublishAsync(userLoggedOutEvent);
+            await _eventPublisher.PublishAsync(userLoggedOutEvent);
         }
     }
 }

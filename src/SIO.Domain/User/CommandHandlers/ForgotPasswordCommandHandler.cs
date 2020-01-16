@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.User.Commands;
 using SIO.Domain.User.Events;
+using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
 namespace SIO.Domain.User.CommandHandlers
@@ -12,17 +12,17 @@ namespace SIO.Domain.User.CommandHandlers
     public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand>
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly IEventPublisher _eventPublisher;
 
-        public ForgotPasswordCommandHandler(UserManager<SIOUser> userManager, IEventBusPublisher eventBusPublisher)
+        public ForgotPasswordCommandHandler(UserManager<SIOUser> userManager, IEventPublisher eventPublisher)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
-            if (eventBusPublisher == null)
-                throw new ArgumentNullException(nameof(eventBusPublisher));
+            if (eventPublisher == null)
+                throw new ArgumentNullException(nameof(eventPublisher));
 
             _userManager = userManager;
-            _eventBusPublisher = eventBusPublisher;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task ExecuteAsync(ForgotPasswordCommand command)
@@ -47,7 +47,7 @@ namespace SIO.Domain.User.CommandHandlers
                 var userPasswordTokenGeneratedEvent = new UserPasswordTokenGenerated(command.AggregateId, command.CorrelationId, command.AggregateId.ToString(), token);
                 userPasswordTokenGeneratedEvent.UpdateFrom(command);
 
-                await _eventBusPublisher.PublishAsync(userPasswordTokenGeneratedEvent);                
+                await _eventPublisher.PublishAsync(userPasswordTokenGeneratedEvent);                
             }
             else
             {

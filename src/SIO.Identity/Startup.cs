@@ -10,6 +10,7 @@ using OpenEventSourcing.EntityFrameworkCore.SqlServer;
 using SIO.Migrations;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using SIO.Domain.User.Events;
+using SIO.Infrastructure;
 
 namespace SIO.Identity
 {
@@ -47,7 +48,8 @@ namespace SIO.Identity
                 .AddEvents()
                 .AddJsonSerializers();
             
-            services.AddSIOIdentity();
+            services.AddSIOIdentity()
+                .AddSIOInfrastructure();
 
             services.Configure<RazorViewEngineOptions>(o =>
             {

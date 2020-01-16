@@ -46,7 +46,7 @@ namespace SIO.Identity.Register
 
             try
             {
-                await _commandDispatcher.DispatchAsync(new RegisterUserCommand(Guid.NewGuid(), Guid.NewGuid(), 0, "", request.Email, request.FirstName, request.LastName));
+                await _commandDispatcher.DispatchAsync(new RegisterUserCommand(Guid.NewGuid(), Guid.NewGuid(), 0, Guid.NewGuid().ToString(), request.Email, request.FirstName, request.LastName));
             }
             catch(EmailInUseException)
             {

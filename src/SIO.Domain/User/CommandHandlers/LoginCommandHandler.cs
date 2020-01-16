@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.User.Commands;
 using SIO.Domain.User.Events;
+using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
 namespace SIO.Domain.User.CommandHandlers
@@ -19,22 +13,22 @@ namespace SIO.Domain.User.CommandHandlers
     {
         private readonly UserManager<SIOUser> _userManager;
         private readonly SignInManager<SIOUser> _signInManager;
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly IEventPublisher _eventPublisher;
 
         public LoginCommandHandler(UserManager<SIOUser> userManager,
             SignInManager<SIOUser> signInManager,
-            IEventBusPublisher eventBusPublisher)
+            IEventPublisher eventPublisher)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
             if (signInManager == null)
                 throw new ArgumentNullException(nameof(signInManager));
-            if (eventBusPublisher == null)
-                throw new ArgumentNullException(nameof(eventBusPublisher));
+            if (eventPublisher == null)
+                throw new ArgumentNullException(nameof(eventPublisher));
 
             _userManager = userManager;
             _signInManager = signInManager;
-            _eventBusPublisher = eventBusPublisher;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task ExecuteAsync(LoginCommand command)
@@ -54,7 +48,7 @@ namespace SIO.Domain.User.CommandHandlers
                 var userPasswordTokenGeneratedEvent = new UserPasswordTokenGenerated(command.AggregateId, command.CorrelationId, command.AggregateId.ToString(), token);
                 userPasswordTokenGeneratedEvent.UpdateFrom(command);
 
-                await _eventBusPublisher.PublishAsync(userPasswordTokenGeneratedEvent);
+                await _eventPublisher.PublishAsync(userPasswordTokenGeneratedEvent);
 
                 await _userManager.UpdateAsync(user);
 
@@ -79,7 +73,7 @@ namespace SIO.Domain.User.CommandHandlers
             var userLoggedInEvent = new UserLoggedIn(command.AggregateId, command.CorrelationId, command.AggregateId.ToString());
             userLoggedInEvent.UpdateFrom(command);
 
-            await _eventBusPublisher.PublishAsync(userLoggedInEvent);            
+            await _eventPublisher.PublishAsync(userLoggedInEvent);            
         }
     }
 }
