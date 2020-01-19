@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using SIO.Migrations;
 
@@ -6,12 +7,12 @@ namespace SIO.Identity
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
 
-            host.SeedDatabase();
-            host.Run();
+            await host.SeedDatabaseAsync();
+            await host.RunAsync();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
