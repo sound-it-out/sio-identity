@@ -8,7 +8,7 @@ namespace SIO.Domain.User.Commands
         public RegisterUserCommand(Guid aggregateId, Guid correlationId, int version, string userId, string email, string firstName, string lastName) : base(aggregateId, correlationId, version, userId)
         {
             Email = email;
-            FirstName = FirstName;
+            FirstName = firstName;
             LastName = lastName;
         }
 
