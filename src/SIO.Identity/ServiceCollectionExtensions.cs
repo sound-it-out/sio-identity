@@ -56,7 +56,6 @@ namespace SIO.Identity
                 options.UserInteraction.LogoutUrl = "/logout";
                 options.UserInteraction.ErrorUrl = "/error";
                 options.UserInteraction.ConsentUrl = "/consent";
-                options.PublicOrigin = configuration.GetValue<string>("Identity:Authority");
             })
             .AddConfigurationStore(options =>
             {

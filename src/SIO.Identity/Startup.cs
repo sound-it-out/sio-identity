@@ -11,6 +11,7 @@ using SIO.Migrations;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using SIO.Domain.User.Events;
 using SIO.Infrastructure;
+using OpenEventSourcing.Azure.ServiceBus.Extensions;
 
 namespace SIO.Identity
 {
@@ -25,24 +26,24 @@ namespace SIO.Identity
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvcCore()
+                    .AddApiExplorer();
+
+            services.AddMvc()
+                .AddRazorRuntimeCompilation()
+                .SetCompatibilityVersion(CompatibilityVersion.Latest);
+
             services.AddOpenEventSourcing()
                 .AddEntityFrameworkCoreSqlServer(options => {
                     options.MigrationsAssembly("SIO.Migrations");
                 })
-                .AddRabbitMq(options =>
+                .AddAzureServiceBus(options =>
                 {
-                    options.UseConnection(Configuration.GetValue<string>("RabbitMQ:Connection"))
-                        .UseExchange(e =>
-                        {
-                            e.WithName(Configuration.GetValue<string>("RabbitMQ:Exchange:Name"));
-                            e.UseExchangeType(Configuration.GetValue<string>("RabbitMQ:Exchange:Type"));
-                        })
-                        .UseManagementApi(m =>
-                        {
-                            m.WithEndpoint(Configuration.GetValue<string>("RabbitMQ:ManagementApi:Endpoint"));
-                            m.WithCredentials(Configuration.GetValue<string>("RabbitMQ:ManagementApi:Username"), Configuration.GetValue<string>("RabbitMQ:ManagementApi:Password"));
-                        });
+                    options.UseConnection(Configuration.GetValue<string>("Azure:ServiceBus:ConnectionString"))
+                    .UseTopic(e =>
+                    {
+                        e.WithName(Configuration.GetValue<string>("Azure:ServiceBus:Topic"));
+                    });
                 })
                 .AddCommands()
                 .AddEvents()
@@ -50,6 +51,7 @@ namespace SIO.Identity
             
             services.AddSIOIdentity()
                 .AddSIOInfrastructure();
+
 
             services.Configure<RazorViewEngineOptions>(o =>
             {
@@ -78,11 +80,15 @@ namespace SIO.Identity
             }
 
             app.UseCors("cors");
+            app.UseRouting();
             app.UseIdentityServer();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

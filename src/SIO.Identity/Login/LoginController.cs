@@ -82,7 +82,7 @@ namespace SIO.Identity.Login
                 if (context == null)
                     return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
 
-                await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+                await _interaction.GrantConsentAsync(context, new ConsentResponse());
 
                 if (!string.IsNullOrEmpty(request.ReturnUrl) && (_interaction.IsValidReturnUrl(request.ReturnUrl) || Url.IsLocalUrl(request.ReturnUrl)))
 #pragma warning disable SCS0027 // Open redirect: possibly unvalidated input in {1} argument passed to '{0}'

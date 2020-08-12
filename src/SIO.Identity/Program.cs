@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using SIO.Migrations;
 
 namespace SIO.Identity
@@ -9,18 +10,22 @@ namespace SIO.Identity
     {
         public static async Task Main(string[] args)
         {
-            var host = CreateWebHostBuilder(args).Build();
+            var host = CreateHostBuilder(args).Build();
 
             await host.SeedDatabaseAsync();
             await host.RunAsync();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-            .UseDefaultServiceProvider((context) =>
-            {
-                context.ValidateScopes = false;
-            })
-            .UseStartup<Startup>();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseDefaultServiceProvider((context) =>
+                    {
+                        context.ValidateScopes = false;
+                    });
+
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }

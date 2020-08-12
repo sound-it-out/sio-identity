@@ -19,6 +19,7 @@ using OpenEventSourcing.EntityFrameworkCore.InMemory;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
+using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
 namespace SIO.Identity.Tests
@@ -113,9 +114,9 @@ namespace SIO.Identity.Tests
             services.AddSingleton<UserManager<SIOUser>, MockUserManager>();
             services.AddSingleton<IIdentityServerInteractionService, MockIdentityServerInteraction>();
 
-            var mockEventBusPublisher = new MockEventBusPublisher(_events);
+            var mockEventBusPublisher = new MockEventPublisher(_events);
 
-            services.AddSingleton<IEventBusPublisher, MockEventBusPublisher>(sp => mockEventBusPublisher);
+            services.AddSingleton<IEventPublisher, MockEventPublisher>(sp => mockEventBusPublisher);
             serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TController>();
         }

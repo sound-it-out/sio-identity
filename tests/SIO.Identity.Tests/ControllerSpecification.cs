@@ -12,10 +12,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.EntityFrameworkCore.InMemory;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Extensions;
+using OpenEventSourcing.Queries;
 using OpenEventSourcing.Serialization.Json.Extensions;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Events;
 using SIO.Migrations;
 using Xunit;
 
@@ -41,6 +45,7 @@ namespace SIO.Identity.Tests
             services.AddOpenEventSourcing()
                 .AddEntityFrameworkCoreInMemory()
                 .AddCommands()
+                .AddQueries()
                 .AddEvents()
                 .AddJsonSerializers();
 
@@ -94,9 +99,6 @@ namespace SIO.Identity.Tests
                 options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                 options.SignOutScheme = IdentityServerConstants.SignoutScheme;
 
-                //options.Authority = configuration.GetValue<string>("Identity:Authority");
-                //options.ClientId = configuration.GetValue<string>("Identity:ClientId");
-
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.ClaimActions.Add(new MapAllClaimsAction());
 #if DEBUG
@@ -116,9 +118,9 @@ namespace SIO.Identity.Tests
             services.AddSingleton<UserManager<SIOUser>, MockUserManager>();
             services.AddSingleton<IIdentityServerInteractionService, MockIdentityServerInteraction>();
 
-            var mockEventBusPublisher = new MockEventBusPublisher(_events);
+            var mockEventBusPublisher = new MockEventPublisher(_events);
 
-            services.AddSingleton<IEventBusPublisher, MockEventBusPublisher>(sp => mockEventBusPublisher);
+            services.AddSingleton<IEventPublisher, MockEventPublisher>(sp => mockEventBusPublisher);
             _serviceProvider = services.BuildServiceProvider();
             _controller = _serviceProvider.GetRequiredService<TController>();
         }

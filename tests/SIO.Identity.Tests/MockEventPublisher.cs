@@ -1,19 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using OpenEventSourcing.Events;
+using SIO.Infrastructure.Events;
 
 namespace SIO.Identity.Tests
 {
-    internal class MockEventBusPublisher : IEventBusPublisher
+    internal class MockEventPublisher : IEventPublisher
     {
         private readonly List<IEvent> _events;
 
-        public MockEventBusPublisher()
+        public MockEventPublisher()
         {
             _events = new List<IEvent>();
         }
 
-        public MockEventBusPublisher(List<IEvent> events)
+        public MockEventPublisher(List<IEvent> events)
         {
             _events = events;
         }
