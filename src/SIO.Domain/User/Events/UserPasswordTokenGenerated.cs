@@ -8,7 +8,7 @@ namespace SIO.Domain.User.Events
     public class UserPasswordTokenGenerated : Event
     {
         public string Token { get; set; }
-        public UserPasswordTokenGenerated(Guid aggregateId, Guid correlationId, int version, string userId, string token) : base(aggregateId, version)
+        public UserPasswordTokenGenerated(Guid aggregateId, Guid correlationId, string userId, string token) : base(aggregateId, 0)
         {
             CorrelationId = correlationId;
             UserId = userId;

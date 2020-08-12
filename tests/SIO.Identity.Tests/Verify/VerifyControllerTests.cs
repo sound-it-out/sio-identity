@@ -345,9 +345,9 @@ namespace SIO.Identity.Tests.Verify
             var request = new VerifyRequest
             {
                 Email = "mock@sound-it-out.com",
-                Token = "token",
                 Password = "Asdf@123456789asdf",
-                RePassword = "Asdf@123456789asdf"
+                RePassword = "Asdf@123456789asdf",
+                Token = Convert.ToBase64String(Encoding.UTF8.GetBytes("invalid_token"))
             };
 
             var userManager = serviceProvider.GetRequiredService<UserManager<SIOUser>>();
@@ -449,7 +449,7 @@ namespace SIO.Identity.Tests.Verify
             };
 
             await userManager.CreateAsync(user);
-            request.Token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            request.Token = Convert.ToBase64String(Encoding.UTF8.GetBytes(await userManager.GenerateEmailConfirmationTokenAsync(user)));
 
             controller.ValidateRequest(request);
 

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using IdentityServer4;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using SIO.Migrations;
 
 namespace SIO.Identity
@@ -21,7 +23,7 @@ namespace SIO.Identity
 
             var serviceProvder = services.BuildServiceProvider();
             var configuration = serviceProvder.GetRequiredService<IConfiguration>();
-            var environment = serviceProvder.GetRequiredService<IHostingEnvironment>();
+            var environment = serviceProvder.GetRequiredService<IWebHostEnvironment>();
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -55,7 +57,6 @@ namespace SIO.Identity
                 options.UserInteraction.LogoutUrl = "/logout";
                 options.UserInteraction.ErrorUrl = "/error";
                 options.UserInteraction.ConsentUrl = "/consent";
-                options.PublicOrigin = configuration.GetValue<string>("Identity:Authority");
             })
             .AddConfigurationStore(options =>
             {
@@ -95,6 +96,10 @@ namespace SIO.Identity
                 options.RequireHttpsMetadata = false;
 #endif
             });
+
+            services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(1));
+            services.AddDataProtection()
+                .SetApplicationName("sio-identity");
 
             if (!environment.IsProduction())
                 identityServer.AddDeveloperSigningCredential();

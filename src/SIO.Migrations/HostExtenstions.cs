@@ -2,19 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace SIO.Migrations
 {
-    public static class WebHostExtenstions
+    public static class HostExtenstions
     {
-        public static void SeedDatabase(this IWebHost host)
+        public static async Task SeedDatabaseAsync(this IHost host)
         {
             if (host == null)
                 throw new ArgumentNullException(nameof(host));
@@ -26,9 +27,9 @@ namespace SIO.Migrations
                 var identityContext = scope.ServiceProvider.GetRequiredService<SIOIdentityDbContext>();
                 var config = scope.ServiceProvider.GetRequiredService<IOptions<IdentityConfig>>().Value;
 
-                persistedGrantContext.Database.Migrate();
-                configurationDbContext.Database.Migrate();
-                identityContext.Database.Migrate();
+                await persistedGrantContext.Database.MigrateAsync();
+                await configurationDbContext.Database.MigrateAsync();
+                await identityContext.Database.MigrateAsync();
 
                 var identityResources = new IdentityResource[]
                 {
@@ -52,63 +53,63 @@ namespace SIO.Migrations
                     AllowedCorsOrigins = c.AllowedCorsOrigins,
                     AllowedScopes = c.AllowedScopes,
                     AllowOfflineAccess = c.AllowOfflineAccess
-                });
+                }).ToArray();
 
                 var apiResources = config.ApiResources.Select(resource => new ApiResource(resource.Name, resource.DisplayName, new[] { "role" }));
 
-                SeedClient(configurationDbContext, clients);
-                SeedIdentiyResources(configurationDbContext, identityResources);
-                SeedApiResources(configurationDbContext, apiResources);
+                await SeedClientAsync(configurationDbContext, clients);
+                await SeedIdentiyResourcesAsync(configurationDbContext, identityResources);
+                await SeedApiResourcesAsync(configurationDbContext, apiResources);
             }
         }
 
-        private static void SeedClient(ConfigurationDbContext context, IEnumerable<Client> clients)
+        private static async Task SeedClientAsync(ConfigurationDbContext context, IEnumerable<Client> clients)
         {
             var newClients = clients.Where(client => !context.Clients.Any(c => c.ClientId == client.ClientId)).ToList();
             var existingClients = clients.Where(client => context.Clients.Any(c => c.ClientId == client.ClientId)).ToList();
 
             context.Clients.AddRange(newClients.Select(c => c.ToEntity()));
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
-            var toRemove = context.Clients.Where(client => existingClients.Any(c => c.ClientId == client.ClientId)).ToList();
+            var toRemove = context.Clients.ToArray().Where(client => existingClients.Any(c => c.ClientId == client.ClientId)).ToList();
             context.Clients.RemoveRange(toRemove);
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             context.Clients.AddRange(existingClients.Select(client => client.ToEntity()));
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        private static void SeedIdentiyResources(ConfigurationDbContext context, IEnumerable<IdentityResource> resources)
+        private static async Task SeedIdentiyResourcesAsync(ConfigurationDbContext context, IEnumerable<IdentityResource> resources)
         {
             var newResources = resources.Where(resource => !context.IdentityResources.Any(r => r.Name == resource.Name)).ToList();
             var existingResources = resources.Where(resource => context.IdentityResources.Any(r => r.Name == resource.Name)).ToList();
 
             context.IdentityResources.AddRange(newResources.Select(resource => resource.ToEntity()));
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
-            var toRemove = context.IdentityResources.Where(resource => existingResources.Any(c => c.Name == resource.Name)).ToList();
+            var toRemove = context.IdentityResources.ToArray().Where(resource => existingResources.Any(c => c.Name == resource.Name)).ToList();
             context.IdentityResources.RemoveRange(toRemove);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             context.IdentityResources.AddRange(existingResources.Select(resource => resource.ToEntity()));
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        private static void SeedApiResources(ConfigurationDbContext context, IEnumerable<ApiResource> apiResources)
+        private static async Task SeedApiResourcesAsync(ConfigurationDbContext context, IEnumerable<ApiResource> apiResources)
         {
             var newResources = apiResources.Where(resource => !context.ApiResources.Any(r => r.Name == resource.Name)).ToList();
             var existingResources = apiResources.Where(resource => context.ApiResources.Any(r => r.Name == resource.Name)).ToList();
 
             context.ApiResources.AddRange(newResources.Select(resource => resource.ToEntity()));
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
-            var toRemove = context.ApiResources.Where(resource => existingResources.Any(c => c.Name == resource.Name)).ToList();
+            var toRemove = context.ApiResources.ToArray().Where(resource => existingResources.Any(c => c.Name == resource.Name)).ToList();
             context.ApiResources.RemoveRange(toRemove);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             context.ApiResources.AddRange(existingResources.Select(resource => resource.ToEntity()));
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
     }
 }

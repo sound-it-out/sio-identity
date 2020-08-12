@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
+using SIO.Domain.User.Commands;
 using SIO.Domain.User.Events;
 using SIO.Identity.Verify.Requests;
 using SIO.Migrations;
@@ -14,25 +16,21 @@ namespace SIO.Identity.Verify
     public class VerifyController : Controller
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly SignInManager<SIOUser> _signInManager;
         private readonly IConfiguration _configuration;
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly ICommandDispatcher _commandDispatcher;
 
-        public VerifyController(UserManager<SIOUser> userManager, SignInManager<SIOUser> signInManager, IConfiguration configuration, IEventBusPublisher eventBusPublisher)
+        public VerifyController(UserManager<SIOUser> userManager, IConfiguration configuration, ICommandDispatcher commandDispatcher)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
-            if (signInManager == null)
-                throw new ArgumentNullException(nameof(signInManager));
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
-            if (eventBusPublisher == null)
-                throw new ArgumentNullException(nameof(eventBusPublisher));
+            if (commandDispatcher == null)
+                throw new ArgumentNullException(nameof(commandDispatcher));
 
             _userManager = userManager;
-            _signInManager = signInManager;
             _configuration = configuration;
-            _eventBusPublisher = eventBusPublisher;
+            _commandDispatcher = commandDispatcher;
         }
 
         [HttpGet("verify")]
@@ -67,34 +65,22 @@ namespace SIO.Identity.Verify
                 return View(request);
             }
 
-            var confirmationResult = await _userManager.ConfirmEmailAsync(user, request.Token);
-
-            if (!confirmationResult.Succeeded)
+            try
             {
-                foreach (var error in confirmationResult.Errors)
-                    ModelState.AddModelError("", error.Description);
-
-                return View(request);
-            }            
-
-            var addPasswordResult = await _userManager.AddPasswordAsync(user, request.Password);
-
-            if(!addPasswordResult.Succeeded)
+                await _commandDispatcher.DispatchAsync(new VerifyUserCommand(new Guid(user.Id), Guid.NewGuid(), 1, "", request.Token, request.Password));
+            }
+            catch(EmailConfirmationException e)
             {
-                foreach (var error in addPasswordResult.Errors)
-                    ModelState.AddModelError("", error.Description);
-
-                return View(request);
+                ModelState.AddModelError("", e.Message);
+            }
+            catch(PasswordCreationException e)
+            {
+                ModelState.AddModelError("", e.Message);
             }
 
-            var correlation = Guid.NewGuid();
-            await _eventBusPublisher.PublishAsync(new UserVerified(new Guid(user.Id), correlation, user.Version++, user.Id));
+            if (!ModelState.IsValid)
+                return View(request);
 
-            await _signInManager.SignInAsync(user, false);
-
-            await _eventBusPublisher.PublishAsync(new UserLoggedIn(new Guid(user.Id), correlation, user.Version++ + 1, user.Id));
-
-            await _userManager.UpdateAsync(user);
             return Redirect(_configuration.GetValue<string>("DefaultAppUrl"));
         }
     }

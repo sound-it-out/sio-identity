@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4;
 using IdentityServer4.Services;
@@ -18,6 +19,7 @@ using OpenEventSourcing.EntityFrameworkCore.InMemory;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
+using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
 namespace SIO.Identity.Tests
@@ -25,12 +27,15 @@ namespace SIO.Identity.Tests
     public class ControllerTests<TController>
         where TController : Controller
     {
+        protected readonly List<IEvent> _events = new List<IEvent>();
+
         protected TController BuildController(out IServiceProvider serviceProvider) 
         {
             var services = new ServiceCollection();
 
             services.AddOpenEventSourcing()
                 .AddEntityFrameworkCoreInMemory()
+                .AddCommands()
                 .AddEvents()
                 .AddJsonSerializers();
 
@@ -108,7 +113,10 @@ namespace SIO.Identity.Tests
             services.AddSingleton<SignInManager<SIOUser>, MockSignInManager>();
             services.AddSingleton<UserManager<SIOUser>, MockUserManager>();
             services.AddSingleton<IIdentityServerInteractionService, MockIdentityServerInteraction>();
-            services.AddTransient<IEventBusPublisher, MockEventBusPublisher>();
+
+            var mockEventBusPublisher = new MockEventPublisher(_events);
+
+            services.AddSingleton<IEventPublisher, MockEventPublisher>(sp => mockEventBusPublisher);
             serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetRequiredService<TController>();
         }

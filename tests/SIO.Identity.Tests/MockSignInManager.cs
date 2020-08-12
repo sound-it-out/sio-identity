@@ -10,7 +10,7 @@ namespace SIO.Identity.Tests
 {
     public class MockSignInManager : SignInManager<SIOUser>
     {
-        public MockSignInManager(UserManager<SIOUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<SIOUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<SIOUser>> logger, IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
+        public MockSignInManager(UserManager<SIOUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<SIOUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<SIOUser>> logger, IAuthenticationSchemeProvider schemes, IUserConfirmation<SIOUser> userConfirmation) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, userConfirmation)
         {
         }
 

@@ -9,6 +9,10 @@ using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.EntityFrameworkCore.SqlServer;
 using SIO.Migrations;
 using OpenEventSourcing.RabbitMQ.Extensions;
+using SIO.Domain.User.Events;
+using SIO.Infrastructure;
+using OpenEventSourcing.Azure.ServiceBus.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace SIO.Identity
 {
@@ -23,35 +27,49 @@ namespace SIO.Identity
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvcCore()
+                    .AddApiExplorer();
+
+            services.AddMvc()
+                .AddRazorRuntimeCompilation()
+                .SetCompatibilityVersion(CompatibilityVersion.Latest);
+
             services.AddOpenEventSourcing()
-                .AddEntityFrameworkCoreSqlServer()
-                .AddRabbitMq(options =>
-                {
-                    options.UseConnection(Configuration.GetValue<string>("RabbitMQ:Connection"))
-                        .UseExchange(e =>
-                        {
-                            e.WithName(Configuration.GetValue<string>("RabbitMQ:Exchange:Name"));
-                            e.UseExchangeType(Configuration.GetValue<string>("RabbitMQ:Exchange:Type"));
-                        })
-                        .UseManagementApi(m =>
-                        {
-                            m.WithEndpoint(Configuration.GetValue<string>("RabbitMQ:ManagementApi:Endpoint"));
-                            m.WithCredentials(Configuration.GetValue<string>("RabbitMQ:ManagementApi:Username"), Configuration.GetValue<string>("RabbitMQ:ManagementApi:Password"));
-                        });
+                .AddEntityFrameworkCoreSqlServer(options => {
+                    options.MigrationsAssembly("SIO.Migrations");
                 })
+                .AddAzureServiceBus(options =>
+                {
+                    options.UseConnection(Configuration.GetValue<string>("Azure:ServiceBus:ConnectionString"))
+                    .UseTopic(e =>
+                    {
+                        e.WithName(Configuration.GetValue<string>("Azure:ServiceBus:Topic"));
+                    });
+                })
+                .AddCommands()
                 .AddEvents()
                 .AddJsonSerializers();
             
-            services.AddSIOIdentity();
+            services.AddSIOIdentity()
+                .AddSIOInfrastructure();
+
 
             services.Configure<RazorViewEngineOptions>(o =>
             {
                 o.ViewLocationFormats.Add($"/{{1}}/Views/{{0}}{RazorViewEngine.ViewExtension}");
             });
+
+            services.AddCors(options =>
+                     options.AddPolicy("cors", builder =>
+                     {
+                         builder.WithOrigins(Configuration.GetValue<string>("DefaultAppUrl"))
+                                .AllowAnyMethod()
+                                .AllowCredentials()
+                                .AllowAnyHeader();
+                     }));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -62,11 +80,16 @@ namespace SIO.Identity
                 app.UseHsts();
             }
 
+            app.UseCors("cors");
+            app.UseRouting();
             app.UseIdentityServer();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

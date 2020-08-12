@@ -1,163 +1,17 @@
 ﻿using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using SIO.Identity.Register;
 using SIO.Identity.Register.Requests;
 using SIO.Migrations;
 using Xunit;
 
 namespace SIO.Identity.Tests.Register
 {
-    public class RegisterControllerTests : ControllerTests<RegisterController>
+    public class RegisterControllerTests : ControllerTests<Identity.Register.RegisterController>
     {
-        [Fact]
-        public void Register_GET_Should_Redirect_To_Default_App_Url_When_User_Is_Authenticated()
-        {
-            var controller = BuildController(out var serviceProvider);
-
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.Name, "example name"),
-                        new Claim(ClaimTypes.NameIdentifier, "1"),
-                        new Claim("custom-claim", "example claim value"),
-                    }, "mock"))
-                }
-            };
-
-            var result = controller.Register();
-            result.Should().BeOfType<RedirectResult>();
-            ((RedirectResult)result).Url.Should().Be("DefaultAppUrl");
-        }
-
-        [Fact]
-        public void Register_GET_Should_Return_View_When_User_Is_UnAuthenticated()
-        {
-            var controller = BuildController(out var serviceProvider);
-
-            var mockUser = new Mock<ClaimsPrincipal>();
-            mockUser.SetupGet(mu => mu.Identity.IsAuthenticated).Returns(false);
-
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = mockUser.Object
-                }
-            };
-
-            var result = controller.Register();
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ViewResult>();
-        }
-
-        [Fact]
-        public void Registered_GET_Should_Redirect_To_Default_App_Url_When_User_Is_Authenticated()
-        {
-            var controller = BuildController(out var serviceProvider);
-
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.Name, "example name"),
-                        new Claim(ClaimTypes.NameIdentifier, "1"),
-                        new Claim("custom-claim", "example claim value"),
-                    }, "mock"))
-                }
-            };
-
-            var result = controller.Registered();
-            result.Should().BeOfType<RedirectResult>();
-            ((RedirectResult)result).Url.Should().Be("DefaultAppUrl");
-        }
-
-        [Fact]
-        public void Registered_GET_Should_Return_View_When_User_Is_UnAuthenticated()
-        {
-            var controller = BuildController(out var serviceProvider);
-
-            var mockUser = new Mock<ClaimsPrincipal>();
-            mockUser.SetupGet(mu => mu.Identity.IsAuthenticated).Returns(false);
-
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = mockUser.Object
-                }
-            };
-
-            var result = controller.Registered();
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ViewResult>();
-        }
-
-        [Fact]
-        public async Task Register_POST_Errors_When_Email_Is_Null()
-        {
-            var controller = BuildController(out var serviceProvider);
-            var request = new RegisterRequest
-            {
-                Email = null,
-                FirstName = "FirstName",
-                LastName = "LastName"
-            };
-            controller.ValidateRequest(request);
-
-            var result = await controller.Register(request);
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ViewResult>();
-            controller.ModelState.IsValid.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task Register_POST_Errors_When_Email_Is_Empty()
-        {
-            var controller = BuildController(out var serviceProvider);
-            var request = new RegisterRequest
-            {
-                Email = "",
-                FirstName = "FirstName",
-                LastName = "LastName"
-            };
-            controller.ValidateRequest(request);
-
-            var result = await controller.Register(request);
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ViewResult>();
-            controller.ModelState.IsValid.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task Register_POST_Errors_When_Email_Is_Invalid()
-        {
-            var controller = BuildController(out var serviceProvider);
-            var request = new RegisterRequest
-            {
-                Email = "Invalid",
-                FirstName = "FirstName",
-                LastName = "LastName"
-            };
-            controller.ValidateRequest(request);
-
-            var result = await controller.Register(request);
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ViewResult>();
-            controller.ModelState.IsValid.Should().BeFalse();
-        }
-
         [Fact]
         public async Task Register_POST_Errors_When_FirstName_Is_Null()
         {
@@ -321,7 +175,7 @@ namespace SIO.Identity.Tests.Register
             var result = await controller.Register(request);
             result.Should().NotBeNull();
             result.Should().BeOfType<RedirectToActionResult>();
-            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(RegisterController.Registered));
+            ((RedirectToActionResult)result).ActionName.Should().Be(nameof(Identity.Register.RegisterController.Registered));
             controller.ModelState.IsValid.Should().BeTrue();
         }
 

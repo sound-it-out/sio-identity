@@ -4,42 +4,27 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using OpenEventSourcing.Events;
-using SIO.Domain.User.Events;
+using OpenEventSourcing.Commands;
+using SIO.Domain.User.Commands;
 using SIO.Identity.Logout.Requests;
-using SIO.Migrations;
 
 namespace SIO.Identity.Logout
 {
     public class LogoutController : Controller
     {
-        private readonly IEventBusPublisher _eventBusPublisher;
         private readonly IIdentityServerInteractionService _interaction;
-        private readonly IPersistedGrantService _persistedGrantService;
-        private readonly SignInManager<SIOUser> _signInManager;
-        private readonly UserManager<SIOUser> _userManager;
+        private readonly ICommandDispatcher _commandDispatcher;
 
-        public LogoutController(IEventBusPublisher eventBusPublisher, IIdentityServerInteractionService interaction, IPersistedGrantService persistedGrantService, SignInManager<SIOUser> signInManager, UserManager<SIOUser> userManager)
+        public LogoutController(IIdentityServerInteractionService interaction, ICommandDispatcher commandDispatcher)
         {
-            if (eventBusPublisher == null)
-                throw new ArgumentNullException(nameof(eventBusPublisher));
             if (interaction == null)
                 throw new ArgumentNullException(nameof(interaction));
-            if (persistedGrantService == null)
-                throw new ArgumentNullException(nameof(persistedGrantService));
-            if (signInManager == null)
-                throw new ArgumentNullException(nameof(signInManager));
-            if (userManager == null)
-                throw new ArgumentNullException(nameof(userManager));
+            if (commandDispatcher == null)
+                throw new ArgumentNullException(nameof(commandDispatcher));
 
-            _eventBusPublisher = eventBusPublisher;
             _interaction = interaction;
-            _persistedGrantService = persistedGrantService;
-            _signInManager = signInManager;
-            _userManager = userManager;
+            _commandDispatcher = commandDispatcher;
         }
 
         [HttpGet("logout")]
@@ -67,16 +52,7 @@ namespace SIO.Identity.Logout
                     request.LogoutId = await _interaction.CreateLogoutContextAsync();
             }
 
-            await _signInManager.SignOutAsync();
-
-            var logout = await _interaction.GetLogoutContextAsync(request.LogoutId);
-
-            await _persistedGrantService.RemoveAllGrantsAsync(subjectId, logout?.ClientId);
-
-            var user = await _userManager.FindByIdAsync(subjectId);
-            user.Version++;
-            await _userManager.UpdateAsync(user);
-            await _eventBusPublisher.PublishAsync(new UserLoggedOut(new Guid(subjectId), Guid.NewGuid(), user.Version, subjectId));
+            await _commandDispatcher.DispatchAsync(new LogoutCommand(new Guid(subjectId), Guid.NewGuid(), 0, subjectId, request.LogoutId));
 
             return View(nameof(LoggedOut));
         }
