@@ -25,18 +25,12 @@ jobs:
     # Test SIO.Domain.Tests
     - name: Test SIO.Domain.Tests
       run: dotnet test tests/SIO.Domain.Tests/SIO.Domain.Tests.csproj --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
-    # Test SIO.Infrastructure.AWS.Tests
-    - name: Test SIO.Infrastructure.AWS.Tests
-      run: dotnet test tests/SIO.Infrastructure.AWS.Tests/SIO.Infrastructure.AWS.Tests.csproj --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
-    # Test SIO.Infrastructure.Google.Tests
-    - name: Test SIO.Infrastructure.Google.Tests
-      run: dotnet test tests/SIO.Infrastructure.Google.Tests/SIO.Infrastructure.Google.Tests.csproj --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
+    # Test SIO.Identity.Tests
+    - name: Test SIO.Identity.Tests
+      run: dotnet test tests/SIO.Identity.Tests/SIO.Identity.Tests.csproj --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
     # Test SIO.Infrastructure.Tests
     - name: Test SIO.Infrastructure.Tests
       run: dotnet test tests/SIO.Infrastructure.Tests/SIO.Infrastructure.Tests.csproj --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
     # Test SIO.Migrations.Tests
     - name: Test SIO.Migrations.Tests
       run: dotnet test tests/SIO.Migrations.Tests/SIO.Migrations.Tests.csproj --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
-    # Test SIO.Translator.Tests
-    - name: Test SIO.Translator.Tests
-      run: dotnet test tests/SIO.Translator.Tests/SIO.Translator.Tests.csproj --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
