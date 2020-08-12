@@ -10,7 +10,7 @@ namespace SIO.Identity.Tests
     internal class MockIdentityServerInteraction : IIdentityServerInteractionService
     {
         public bool IsValidUrl { get; set; }
-        public bool HasAuthorizationContext { get; set; }
+        public bool HasAuthorizationContext { get; set; } = true;
 
         public Task<string> CreateLogoutContextAsync()
         {
@@ -27,7 +27,7 @@ namespace SIO.Identity.Tests
             if (HasAuthorizationContext)
                 return Task.FromResult(new Mock<AuthorizationRequest>().Object);
 
-            return null;
+            return Task.FromResult((AuthorizationRequest)null);
         }
 
         public Task<ErrorMessage> GetErrorContextAsync(string errorId)
