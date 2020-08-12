@@ -22,10 +22,10 @@ namespace SIO.Identity.Tests
             throw new NotImplementedException();
         }
 
-        public async Task<AuthorizationRequest> GetAuthorizationContextAsync(string returnUrl)
+        public Task<AuthorizationRequest> GetAuthorizationContextAsync(string returnUrl)
         {
             if (HasAuthorizationContext)
-                return new Mock<AuthorizationRequest>().Object;
+                return Task.FromResult(new Mock<AuthorizationRequest>().Object);
 
             return null;
         }

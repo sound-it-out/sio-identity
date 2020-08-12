@@ -12,6 +12,7 @@ using OpenEventSourcing.RabbitMQ.Extensions;
 using SIO.Domain.User.Events;
 using SIO.Infrastructure;
 using OpenEventSourcing.Azure.ServiceBus.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace SIO.Identity
 {
@@ -68,7 +69,7 @@ namespace SIO.Identity
                      }));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
