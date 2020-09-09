@@ -11,7 +11,7 @@
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.0.0" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.8" />
     <PackageReference Include="OpenEventSourcing" Version="0.4.0" />
     <PackageReference Include="OpenEventSourcing.Azure.ServiceBus" Version="0.4.0" />
     <PackageReference Include="OpenEventSourcing.EntityFrameworkCore.SqlServer" Version="0.4.0" />
