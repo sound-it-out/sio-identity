@@ -25,7 +25,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
-    <PackageReference Include="IdentityServer4" Version="3.0.0" />
+    <PackageReference Include="IdentityServer4" Version="4.1.0" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.0.0" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="3.0.0" />
