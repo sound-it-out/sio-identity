@@ -4,12 +4,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using OpenEventSourcing.Commands;
-using SIO.Domain.User.Commands;
-using SIO.Domain.User.Events;
+using SIO.Domain.Users.Commands;
+using SIO.Domain.Users.Events;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
-namespace SIO.Domain.User.CommandHandlers
+namespace SIO.Domain.Users.CommandHandlers
 {
     public class VerifyUserCommandHandler : ICommandHandler<VerifyUserCommand>
     {

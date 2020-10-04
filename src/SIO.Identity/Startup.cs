@@ -9,7 +9,7 @@ using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.EntityFrameworkCore.SqlServer;
 using SIO.Migrations;
 using OpenEventSourcing.RabbitMQ.Extensions;
-using SIO.Domain.User.Events;
+using SIO.Domain.Users.Events;
 using SIO.Infrastructure;
 using OpenEventSourcing.Azure.ServiceBus.Extensions;
 using Microsoft.Extensions.Hosting;

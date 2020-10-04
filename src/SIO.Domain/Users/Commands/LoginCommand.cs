@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using OpenEventSourcing.Commands;
 
-namespace SIO.Domain.User.Commands
+namespace SIO.Domain.Users.Commands
 {
     public class LoginCommand : Command
     {

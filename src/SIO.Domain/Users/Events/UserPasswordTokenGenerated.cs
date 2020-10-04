@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenEventSourcing.Events;
 
-namespace SIO.Domain.User.Events
+namespace SIO.Domain.Users.Events
 {
     public class UserPasswordTokenGenerated : Event
     {

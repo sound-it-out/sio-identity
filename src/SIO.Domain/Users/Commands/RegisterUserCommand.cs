@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenEventSourcing.Commands;
 
-namespace SIO.Domain.User.Commands
+namespace SIO.Domain.Users.Commands
 {
     public class RegisterUserCommand : Command
     {

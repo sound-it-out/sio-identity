@@ -6,7 +6,7 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
 using OpenEventSourcing.Commands;
-using SIO.Domain.User.Commands;
+using SIO.Domain.Users.Commands;
 using SIO.Identity.Logout.Requests;
 
 namespace SIO.Identity.Logout

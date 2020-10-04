@@ -5,7 +5,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using SIO.Domain.User.Events;
+using SIO.Domain.Users.Events;
 using SIO.Identity.ForgotPassword.Requests;
 using SIO.Migrations;
 
