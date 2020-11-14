@@ -58,7 +58,6 @@ namespace SIO.Identity
                 options.UserInteraction.ErrorUrl = "/error";
                 options.UserInteraction.ConsentUrl = "/consent";
                 options.Cors.CorsPaths.Add("/v1/client");
-                options.PublicOrigin = configuration.GetValue<string>("Identity:Authority");
             })
             .AddConfigurationStore(options =>
             {
