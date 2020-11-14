@@ -24,4 +24,4 @@ jobs:
 
      # Test projects
     - name: Test projects
-      run: dotnet test Fundipedia-Mailer.sln --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
+      run: dotnet test SIO-Identity.sln --configuration Release --no-restore --no-build --verbosity normal -- xunit.parallelizeAssembly=true
