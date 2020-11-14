@@ -146,9 +146,9 @@ namespace SIO.Identity.Login
             var providers = schemes.Where(scheme => !string.IsNullOrWhiteSpace(scheme.DisplayName))
                                    .Select(scheme => new ExternalProvider(scheme.DisplayName, scheme.Name));
 
-            if (context?.ClientId != null)
+            if (context?.Client?.ClientId != null)
             {
-                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
 
                 if (client != null)
                 {

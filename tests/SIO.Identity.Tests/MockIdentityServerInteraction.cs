@@ -17,7 +17,17 @@ namespace SIO.Identity.Tests
             return Task.FromResult("MockLogoutId");
         }
 
+        public Task DenyAuthorizationAsync(AuthorizationRequest request, AuthorizationError error, string errorDescription = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IEnumerable<Consent>> GetAllUserConsentsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Grant>> GetAllUserGrantsAsync()
         {
             throw new NotImplementedException();
         }
