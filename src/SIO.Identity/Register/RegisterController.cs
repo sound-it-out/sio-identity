@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
-using SIO.Domain.User.Commands;
-using SIO.Domain.User.Events;
+using SIO.Domain.Users.Commands;
+using SIO.Domain.Users.Events;
 using SIO.Identity.Register.Requests;
 using SIO.Migrations;
 

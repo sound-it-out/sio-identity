@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
-using SIO.Domain.User.Commands;
-using SIO.Domain.User.Events;
+using SIO.Domain.Users.Commands;
+using SIO.Domain.Users.Events;
 using SIO.Identity.ForgotPassword.Requests;
 using SIO.Migrations;
 

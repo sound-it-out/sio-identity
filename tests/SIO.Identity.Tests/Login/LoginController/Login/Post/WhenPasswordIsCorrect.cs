@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using SIO.Domain.User.Events;
+using SIO.Domain.Users.Events;
 using SIO.Identity.Login.Requests;
 using SIO.Migrations;
 

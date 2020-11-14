@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace SIO.Domain.User.Commands
+namespace SIO.Domain.Users.Commands
 {
     public class PasswordCreationException : UserCommandException
     {
