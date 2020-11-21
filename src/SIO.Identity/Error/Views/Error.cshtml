@@ -1,0 +1,29 @@
+﻿@using IdentityServer4.Models
+@model ErrorMessage
+@{
+    Layout = "../../Shared/Views/_Layout";
+    ViewData["Title"] = "Error";
+}
+
+<div class="row mb-3">
+    <div class="col text-center">
+        <img class="logo" src="~/img/logo.svg" />
+    </div>
+</div>
+
+<form class="form-signin text-center" asp-route="login" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ReturnUrl" />
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <div class="form-group mt-3">
+                <p>Sorry an error has occured: @Model.Error</p>
+                <p>@Model.ErrorDescription</p>
+            </div>
+
+        </div>
+        <div class="card-footer">
+            <small class="text-muted"><a href="/login">Click here to login</a>.</small>
+        </div>
+    </div>
+</form>
