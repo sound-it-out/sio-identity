@@ -4,11 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
 using SIO.Identity.Verify.Requests;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Commands;
 using SIO.Migrations;
 
 namespace SIO.Identity.Verify
@@ -67,7 +66,7 @@ namespace SIO.Identity.Verify
 
             try
             {
-                await _commandDispatcher.DispatchAsync(new VerifyUserCommand(new Guid(user.Id), Guid.NewGuid(), 1, "", request.Token, request.Password));
+                await _commandDispatcher.DispatchAsync(new VerifyUserCommand(user.Id, CorrelationId.New(), request.Token, request.Password));
             }
             catch(EmailConfirmationException e)
             {

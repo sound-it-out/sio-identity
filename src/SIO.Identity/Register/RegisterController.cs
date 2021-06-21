@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
 using SIO.Identity.Register.Requests;
-using SIO.Migrations;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Commands;
 
 namespace SIO.Identity.Register
 {
@@ -46,7 +43,7 @@ namespace SIO.Identity.Register
 
             try
             {
-                await _commandDispatcher.DispatchAsync(new RegisterUserCommand(Guid.NewGuid(), Guid.NewGuid(), 0, Guid.NewGuid().ToString(), request.Email, request.FirstName, request.LastName));
+                await _commandDispatcher.DispatchAsync(new RegisterUserCommand(Actor.New(), CorrelationId.New(), request.Email, request.FirstName, request.LastName));
             }
             catch(EmailInUseException)
             {

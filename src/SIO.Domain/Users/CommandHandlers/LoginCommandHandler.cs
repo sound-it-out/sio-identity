@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using OpenEventSourcing.Commands;
+using Microsoft.Extensions.Logging;
 using SIO.Domain.Users.Commands;
 using SIO.Domain.Users.Events;
+using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -13,27 +15,41 @@ namespace SIO.Domain.Users.CommandHandlers
     {
         private readonly UserManager<SIOUser> _userManager;
         private readonly SignInManager<SIOUser> _signInManager;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IEventManager _eventManager;
+        private readonly ILogger<LoginCommandHandler> _logger;
 
         public LoginCommandHandler(UserManager<SIOUser> userManager,
             SignInManager<SIOUser> signInManager,
-            IEventPublisher eventPublisher)
+            IEventManager eventManager,
+            ILogger<LoginCommandHandler> logger)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
             if (signInManager == null)
                 throw new ArgumentNullException(nameof(signInManager));
-            if (eventPublisher == null)
-                throw new ArgumentNullException(nameof(eventPublisher));
+            if (eventManager == null)
+                throw new ArgumentNullException(nameof(eventManager));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
 
             _userManager = userManager;
             _signInManager = signInManager;
-            _eventPublisher = eventPublisher;
+            _eventManager = eventManager;
+            _logger = logger;
         }
 
-        public async Task ExecuteAsync(LoginCommand command)
+        public async Task ExecuteAsync(LoginCommand command, CancellationToken cancellationToken = default)
         {
-            var user = await _userManager.FindByIdAsync(command.AggregateId.ToString());
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogInformation($"{nameof(LoginCommandHandler)}.{nameof(ExecuteAsync)} was cancelled before execution");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            var user = await _userManager.FindByIdAsync(command.Subject);
 
             if (user == null)
                 throw new UserDoesntExistException();
@@ -44,13 +60,8 @@ namespace SIO.Domain.Users.CommandHandlers
             if (!user.EmailConfirmed)
             {
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                var userPasswordTokenGeneratedEvent = new UserPasswordTokenGenerated(command.AggregateId, command.CorrelationId, command.AggregateId.ToString(), token);
-                userPasswordTokenGeneratedEvent.UpdateFrom(command);
-
-                await _eventPublisher.PublishAsync(userPasswordTokenGeneratedEvent);
-
                 await _userManager.UpdateAsync(user);
+                await _eventManager.ProcessAsync(StreamId.New(), new UserPasswordTokenGenerated(command.Subject, token));                
 
                 throw new UserNotVerifiedException();
             }
@@ -69,11 +80,7 @@ namespace SIO.Domain.Users.CommandHandlers
             await _signInManager.SignInAsync(user, false);
             await _userManager.ResetAccessFailedCountAsync(user);
             await _userManager.UpdateAsync(user);
-
-            var userLoggedInEvent = new UserLoggedIn(command.AggregateId, command.CorrelationId, command.AggregateId.ToString());
-            userLoggedInEvent.UpdateFrom(command);
-
-            await _eventPublisher.PublishAsync(userLoggedInEvent);            
+            await _eventManager.ProcessAsync(StreamId.New(), new UserLoggedIn(command.Subject));            
         }
     }
 }

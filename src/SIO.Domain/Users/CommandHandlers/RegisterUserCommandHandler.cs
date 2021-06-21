@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using OpenEventSourcing.Commands;
+using Microsoft.Extensions.Logging;
 using SIO.Domain.Users.Commands;
 using SIO.Domain.Users.Events;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -12,21 +15,36 @@ namespace SIO.Domain.Users.CommandHandlers
     internal class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand>
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IEventManager _eventManager;
+        private readonly ILogger<RegisterUserCommandHandler> _logger;
 
-        public RegisterUserCommandHandler(UserManager<SIOUser> userManager, IEventPublisher eventPublisher)
+        public RegisterUserCommandHandler(UserManager<SIOUser> userManager,
+            IEventManager eventManager,
+            ILogger<RegisterUserCommandHandler> logger)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
 
             _userManager = userManager;
-            _eventPublisher = eventPublisher;
+            _eventManager = eventManager;
+            _logger = logger;
         }
 
-        public async Task ExecuteAsync(RegisterUserCommand command)
+        public async Task ExecuteAsync(RegisterUserCommand command, CancellationToken cancellationToken = default)
         {
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogInformation($"{nameof(RegisterUserCommandHandler)}.{nameof(ExecuteAsync)} was cancelled before execution");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
             var user = await _userManager.FindByEmailAsync(command.Email);
 
             if (user != null)
@@ -44,7 +62,7 @@ namespace SIO.Domain.Users.CommandHandlers
 
             user = new SIOUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = command.Subject,
                 Email = command.Email,
                 FirstName = command.FirstName,
                 LastName = command.LastName,
@@ -62,16 +80,15 @@ namespace SIO.Domain.Users.CommandHandlers
 
             await _userManager.UpdateAsync(user);
 
-            var userRegisteredEvent = new UserRegistered(Guid.Parse(user.Id), Guid.NewGuid(), user.Id, user.Email, user.FirstName, user.LastName, token);
-            userRegisteredEvent.UpdateFrom(command);
-            try
-            {
-                await _eventPublisher.PublishAsync(userRegisteredEvent);
-            }            
-            catch(Exception e)
-            {
-                throw e;
-            }
+            var userRegisteredEvent = new UserRegistered(
+                subject: user.Id,
+                email: user.Email,
+                firstName: user.FirstName,
+                lastName: user.LastName,
+                activationToken: token
+            );
+
+            await _eventManager.ProcessAsync(StreamId.New(), userRegisteredEvent);
         }
     }
 }

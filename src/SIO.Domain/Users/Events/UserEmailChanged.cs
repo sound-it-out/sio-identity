@@ -1,16 +1,13 @@
-﻿using System;
-using OpenEventSourcing.Events;
+﻿using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.Users.Events
 {
     public class UserEmailChanged : Event
     {
         public string Email { get; set; }
-        public UserEmailChanged(Guid aggregateId, Guid correlationId, int version, string userId, string email) : base(aggregateId, version)
+
+        public UserEmailChanged(string subject, int version) : base(subject, version)
         {
-            Email = email;
-            CorrelationId = correlationId;
-            UserId = userId;
         }
     }
 }

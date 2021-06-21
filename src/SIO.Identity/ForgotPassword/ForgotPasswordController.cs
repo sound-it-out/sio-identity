@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
 using SIO.Identity.ForgotPassword.Requests;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Commands;
 using SIO.Migrations;
 
 namespace SIO.Identity.ForgotPassword
@@ -46,7 +45,7 @@ namespace SIO.Identity.ForgotPassword
             {
                 try
                 {
-                    await _commandDispatcher.DispatchAsync(new ForgotPasswordCommand(new Guid(user.Id), Guid.NewGuid(), 0, user.Id));
+                    await _commandDispatcher.DispatchAsync(new ForgotPasswordCommand(user.Id, CorrelationId.New()));
                 }
                 catch(UserDoesntExistException)
                 {

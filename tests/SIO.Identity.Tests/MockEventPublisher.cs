@@ -5,7 +5,7 @@ using SIO.Infrastructure.Events;
 
 namespace SIO.Identity.Tests
 {
-    internal class MockEventPublisher : IEventPublisher
+    internal class MockEventPublisher : IEventManager
     {
         private readonly List<IEvent> _events;
 

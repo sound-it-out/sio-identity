@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using IdentityServer4;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.DataProtection;
@@ -8,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using SIO.Migrations;
 
@@ -25,14 +23,12 @@ namespace SIO.Identity
             var configuration = serviceProvder.GetRequiredService<IConfiguration>();
             var environment = serviceProvder.GetRequiredService<IWebHostEnvironment>();
 
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-
             var migrationsAssembly = typeof(SIOIdentityDbContext).Assembly.GetName().Name;
 
             services.AddIdentityConfiguration();
 
             services.AddDbContext<SIOIdentityDbContext>(options =>
-                options.UseSqlServer(connectionString, sql =>
+                options.UseSqlServer(configuration.GetConnectionString("Identity"), sql =>
                 {
                     sql.EnableRetryOnFailure();
                     sql.MigrationsAssembly(migrationsAssembly);
@@ -62,7 +58,7 @@ namespace SIO.Identity
             .AddConfigurationStore(options =>
             {
                 options.ConfigureDbContext = (builder) =>
-                    builder.UseSqlServer(connectionString, (sql) =>
+                    builder.UseSqlServer(configuration.GetConnectionString("IdentityServer"), (sql) =>
                     {
                         sql.EnableRetryOnFailure();
                         sql.MigrationsAssembly(migrationsAssembly);
@@ -72,7 +68,7 @@ namespace SIO.Identity
             .AddOperationalStore(options =>
             {
                 options.ConfigureDbContext = (builder) =>
-                    builder.UseSqlServer(connectionString, (sql) =>
+                    builder.UseSqlServer(configuration.GetConnectionString("IdentityServer"), (sql) =>
                     {
                         sql.EnableRetryOnFailure();
                         sql.MigrationsAssembly(migrationsAssembly);

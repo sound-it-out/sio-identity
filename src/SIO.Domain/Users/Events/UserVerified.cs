@@ -1,14 +1,11 @@
-﻿using System;
-using OpenEventSourcing.Events;
+﻿using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.Users.Events
 {
     public class UserVerified : Event
     {
-        public UserVerified(Guid aggregateId, Guid correlationId, string userId) : base(aggregateId, 0)
+        public UserVerified(string subject) : base(subject, 0)
         {
-            CorrelationId = correlationId;
-            UserId = userId;
         }
     }
 }

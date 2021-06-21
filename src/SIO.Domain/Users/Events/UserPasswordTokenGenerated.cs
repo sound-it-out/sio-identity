@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OpenEventSourcing.Events;
+﻿using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.Users.Events
 {
     public class UserPasswordTokenGenerated : Event
     {
         public string Token { get; set; }
-        public UserPasswordTokenGenerated(Guid aggregateId, Guid correlationId, string userId, string token) : base(aggregateId, 0)
+
+        public UserPasswordTokenGenerated(string subject, string token) : base(subject, 0)
         {
-            CorrelationId = correlationId;
-            UserId = userId;
             Token = token;
         }
     }

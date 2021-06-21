@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  sio.identity:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ConnectionStrings__Store=Server=sio.sql.store;Initial Catalog=sio-store;User Id=sa;Password=1qaz-pl,
+      - ConnectionStrings__IdentityServer=Server=sio.identity.sql.identityserver;Initial Catalog=sio-identityserver;User Id=sa;Password=1qaz-pl,
+      - ConnectionStrings__Identity=Server=sio.identity.sql;Initial Catalog=sio-identity;User Id=sa;Password=1qaz-pl,
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  sio.identity.sql.identityserver:
+    environment:
+      SA_PASSWORD: "1qaz-pl,"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1446:1433"
+    volumes:
+      - /var/opt/mssql/data
+  sio.identity.sql:
+    environment:
+      SA_PASSWORD: "1qaz-pl,"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1447:1433"
+    volumes:
+      - /var/opt/mssql/data

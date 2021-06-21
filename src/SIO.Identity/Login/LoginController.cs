@@ -8,12 +8,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using OpenEventSourcing.Commands;
-using OpenEventSourcing.Events;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
 using SIO.Identity.Login.Requests;
 using SIO.Identity.Login.Responses;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Commands;
 using SIO.Migrations;
 
 namespace SIO.Identity.Login
@@ -100,7 +99,7 @@ namespace SIO.Identity.Login
 
             try
             {
-                await _commandDispatcher.DispatchAsync(new LoginCommand(new Guid(user.Id), Guid.NewGuid(), 0, user.Id, request.Password));
+                await _commandDispatcher.DispatchAsync(new LoginCommand(user.Id, CorrelationId.New(), request.Password));
             }
             catch(UserDoesntExistException)
             {

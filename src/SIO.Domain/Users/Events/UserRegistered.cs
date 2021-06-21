@@ -1,5 +1,4 @@
-﻿using System;
-using OpenEventSourcing.Events;
+﻿using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.Users.Events
 {
@@ -8,16 +7,14 @@ namespace SIO.Domain.Users.Events
         public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string ActivationToken { get; }
+        public string ActivationToken { get; set; }
 
-        public UserRegistered(Guid aggregateId, Guid correlationId, string userId, string email, string firstName, string lastName, string activationToken) : base(aggregateId, 0)
+        public UserRegistered(string subject, string email, string firstName, string lastName, string activationToken) : base(subject, 0)
         {
             Email = email;
             FirstName = firstName;
             LastName = lastName;
             ActivationToken = activationToken;
-            CorrelationId = correlationId;
-            UserId = userId;
         }
     }
 }

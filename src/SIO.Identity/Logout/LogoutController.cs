@@ -5,9 +5,10 @@ using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
-using OpenEventSourcing.Commands;
 using SIO.Domain.Users.Commands;
 using SIO.Identity.Logout.Requests;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Commands;
 
 namespace SIO.Identity.Logout
 {
@@ -52,7 +53,7 @@ namespace SIO.Identity.Logout
                     request.LogoutId = await _interaction.CreateLogoutContextAsync();
             }
 
-            await _commandDispatcher.DispatchAsync(new LogoutCommand(new Guid(subjectId), Guid.NewGuid(), 0, subjectId, request.LogoutId));
+            await _commandDispatcher.DispatchAsync(new LogoutCommand(subjectId, CorrelationId.New(), request.LogoutId));
 
             return View(nameof(LoggedOut));
         }

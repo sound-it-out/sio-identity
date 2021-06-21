@@ -4,6 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <UserSecretsId>869b8ac0-3c1c-45a1-b4a6-3fd4c386514e</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,16 +19,15 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="OpenEventSourcing" Version="0.4.0" />
-    <PackageReference Include="OpenEventSourcing.Azure.ServiceBus" Version="0.4.0" />
-    <PackageReference Include="OpenEventSourcing.EntityFrameworkCore.SqlServer" Version="0.4.0" />
-    <PackageReference Include="OpenEventSourcing.Serialization.Json" Version="0.4.0" />
-    <PackageReference Include="OpenEventSourcing.RabbitMQ" Version="0.4.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
+    <PackageReference Include="SIO.Infrastructure.Azure.ServiceBus" Version="0.0.3" />
+    <PackageReference Include="SIO.Infrastructure.Azure.Storage" Version="0.0.3" />
+    <PackageReference Include="SIO.Infrastructure.RabbitMQ" Version="0.0.3" />
+    <PackageReference Include="SIO.Infrastructure.Serialization.Json" Version="0.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SIO.Domain\SIO.Domain.csproj" />
-    <ProjectReference Include="..\SIO.Infrastructure\SIO.Infrastructure.csproj" />
     <ProjectReference Include="..\SIO.Migrations\SIO.Migrations.csproj" />
   </ItemGroup>
 
