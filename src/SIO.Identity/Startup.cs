@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using IdentityServer4.Models;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -26,13 +27,6 @@ namespace SIO.Identity
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvcCore()
-                    .AddApiExplorer();
-
-            services.AddMvc()
-                .AddRazorRuntimeCompilation()
-                .SetCompatibilityVersion(CompatibilityVersion.Latest);
-
             services.AddSIOInfrastructure()
                 .AddEntityFrameworkCoreSqlServer(options => {
                     options.AddStore(_configuration.GetConnectionString("Store"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
@@ -60,6 +54,7 @@ namespace SIO.Identity
                 .AddJsonSerializers();
             
             services.AddSIOIdentity()
+                .AddSameSiteHandling()
                 .AddDomain();
 
 
@@ -68,14 +63,12 @@ namespace SIO.Identity
                 o.ViewLocationFormats.Add($"/{{1}}/Views/{{0}}{RazorViewEngine.ViewExtension}");
             });
 
-            services.AddCors(options =>
-                     options.AddPolicy("cors", builder =>
-                     {
-                         builder.WithOrigins(_configuration.GetValue<string>("DefaultAppUrl"))
-                                .AllowAnyMethod()
-                                .AllowCredentials()
-                                .AllowAnyHeader();
-                     }));
+            services.AddMvcCore()
+                .AddApiExplorer();
+
+            services.AddMvc()
+                .AddRazorRuntimeCompilation()
+                .SetCompatibilityVersion(CompatibilityVersion.Latest);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -87,13 +80,19 @@ namespace SIO.Identity
             else
             {
                 app.UseHsts();
+                app.UseHttpsRedirection();
             }
 
-            app.UseCors("cors");
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials());
+
             app.UseRouting();
             app.UseIdentityServer();
 
-            app.UseHttpsRedirection();
+            
             app.UseStaticFiles();
             app.UseEndpoints(endpoints =>
             {

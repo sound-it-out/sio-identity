@@ -7,6 +7,7 @@ namespace SIO.Migrations
     internal class IdentityConfig
     {
         public IEnumerable<ApiResourceOption> ApiResources { get; set; }
+        public IEnumerable<ApiScopeOption> ApiScopes { get; set; }
         public IEnumerable<ClientOption> Clients { get; set; }
     }
 }
