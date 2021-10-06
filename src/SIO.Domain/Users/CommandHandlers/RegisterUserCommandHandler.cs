@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
-using SIO.Infrastructure;
 using SIO.Infrastructure.Commands;
+using SIO.Infrastructure.Domain;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -15,22 +16,27 @@ namespace SIO.Domain.Users.CommandHandlers
     internal class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand>
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly IEventManager _eventManager;
+        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateFactory _aggregateFactory;
         private readonly ILogger<RegisterUserCommandHandler> _logger;
 
         public RegisterUserCommandHandler(UserManager<SIOUser> userManager,
-            IEventManager eventManager,
+            IAggregateRepository aggregateRepository,
+            IAggregateFactory aggregateFactory,
             ILogger<RegisterUserCommandHandler> logger)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
-            if (userManager == null)
-                throw new ArgumentNullException(nameof(userManager));
+            if (aggregateRepository == null)
+                throw new ArgumentNullException(nameof(aggregateRepository));
+            if (aggregateFactory == null)
+                throw new ArgumentNullException(nameof(aggregateFactory));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
             _userManager = userManager;
-            _eventManager = eventManager;
+            _aggregateRepository = aggregateRepository;
+            _aggregateFactory = aggregateFactory;
             _logger = logger;
         }
 
@@ -80,7 +86,12 @@ namespace SIO.Domain.Users.CommandHandlers
 
             await _userManager.UpdateAsync(user);
 
-            var userRegisteredEvent = new UserRegistered(
+            var aggregate = _aggregateFactory.FromHistory<User, UserState>(Enumerable.Empty<IEvent>());
+
+            if (aggregate == null)
+                throw new ArgumentNullException(nameof(aggregate));
+
+            aggregate.Register(
                 subject: user.Id,
                 email: user.Email,
                 firstName: user.FirstName,
@@ -88,7 +99,7 @@ namespace SIO.Domain.Users.CommandHandlers
                 activationToken: token
             );
 
-            await _eventManager.ProcessAsync(StreamId.New(), userRegisteredEvent);
+            await _aggregateRepository.SaveAsync(aggregate, command, cancellationToken: cancellationToken);
         }
     }
 }

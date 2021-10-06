@@ -7,6 +7,9 @@ services:
     build:
       context: .
       dockerfile: src/SIO.Identity/Dockerfile
+    depends_on:
+      - sio.identity.sql.identityserver
+      - sio.identity.sql
   sio.identity.sql.identityserver:
     image: "microsoft/mssql-server-linux"
     container_name: sio.identity.sql.identityserver

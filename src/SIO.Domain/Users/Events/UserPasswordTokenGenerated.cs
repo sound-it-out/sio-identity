@@ -6,7 +6,7 @@ namespace SIO.Domain.Users.Events
     {
         public string Token { get; set; }
 
-        public UserPasswordTokenGenerated(string subject, string token) : base(subject, 0)
+        public UserPasswordTokenGenerated(string subject, int version, string token) : base(subject, version)
         {
             Token = token;
         }

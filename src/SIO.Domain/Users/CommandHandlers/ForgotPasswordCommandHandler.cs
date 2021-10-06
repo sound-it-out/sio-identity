@@ -3,9 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
 using SIO.Domain.Users.Events;
 using SIO.Infrastructure.Commands;
+using SIO.Infrastructure.Domain;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -14,22 +16,27 @@ namespace SIO.Domain.Users.CommandHandlers
     public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand>
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly IEventManager _eventManager;
+        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateFactory _aggregateFactory;
         private readonly ILogger<ForgotPasswordCommandHandler> _logger;
 
-        public ForgotPasswordCommandHandler(UserManager<SIOUser> userManager, 
-            IEventManager eventManager,
+        public ForgotPasswordCommandHandler(UserManager<SIOUser> userManager,
+            IAggregateRepository aggregateRepository,
+            IAggregateFactory aggregateFactory,
             ILogger<ForgotPasswordCommandHandler> logger)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
-            if (eventManager == null)
-                throw new ArgumentNullException(nameof(eventManager));
+            if (aggregateRepository == null)
+                throw new ArgumentNullException(nameof(aggregateRepository));
+            if (aggregateFactory == null)
+                throw new ArgumentNullException(nameof(aggregateFactory));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
             _userManager = userManager;
-            _eventManager = eventManager;
+            _aggregateRepository = aggregateRepository;
+            _aggregateFactory = aggregateFactory;
             _logger = logger;
         }
 
@@ -60,7 +67,16 @@ namespace SIO.Domain.Users.CommandHandlers
 
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 await _userManager.UpdateAsync(user);
-                await _eventManager.ProcessAsync(StreamId.New(), new UserPasswordTokenGenerated(command.Subject, token));                
+
+                var aggregate = await _aggregateRepository.GetAsync<User, UserState>(command.Subject, cancellationToken);
+                var expectedVersion = aggregate.Version;
+
+                if (aggregate == null)
+                    throw new ArgumentNullException(nameof(aggregate));
+
+                aggregate.RequestToken(token);
+
+                await _aggregateRepository.SaveAsync(aggregate, command, expectedVersion, cancellationToken);              
             }
             else
             {

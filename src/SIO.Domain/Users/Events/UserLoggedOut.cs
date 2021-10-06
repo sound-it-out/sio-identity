@@ -4,7 +4,7 @@ namespace SIO.Domain.Users.Events
 {
     public class UserLoggedOut : Event
     {
-        public UserLoggedOut(string subject) : base(subject, 0)
+        public UserLoggedOut(string subject, int version) : base(subject, version)
         {
         }
     }

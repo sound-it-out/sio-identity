@@ -5,9 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
 using SIO.Infrastructure.Commands;
+using SIO.Infrastructure.Domain;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -17,26 +18,31 @@ namespace SIO.Domain.Users.CommandHandlers
     {
         private readonly UserManager<SIOUser> _userManager;
         private readonly SignInManager<SIOUser> _signInManager;
-        private readonly IEventManager _eventManager;
+        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateFactory _aggregateFactory;
         private readonly ILogger<VerifyUserCommandHandler> _logger;
 
         public VerifyUserCommandHandler(UserManager<SIOUser> userManager,
             SignInManager<SIOUser> signInManager,
-            IEventManager eventManager,
+            IAggregateRepository aggregateRepository,
+            IAggregateFactory aggregateFactory,
             ILogger<VerifyUserCommandHandler> logger)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
             if (signInManager == null)
                 throw new ArgumentNullException(nameof(signInManager));
-            if (eventManager == null)
-                throw new ArgumentNullException(nameof(eventManager));
+            if (aggregateRepository == null)
+                throw new ArgumentNullException(nameof(aggregateRepository));
+            if (aggregateFactory == null)
+                throw new ArgumentNullException(nameof(aggregateFactory));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
             _userManager = userManager;
             _signInManager = signInManager;
-            _eventManager = eventManager;
+            _aggregateRepository = aggregateRepository;
+            _aggregateFactory = aggregateFactory;
             _logger = logger;
         }
 
@@ -67,12 +73,21 @@ namespace SIO.Domain.Users.CommandHandlers
                 throw new PasswordCreationException(addPasswordResult.Errors.First().Description);
             }
 
+            var aggregate = await _aggregateRepository.GetAsync<User, UserState>(command.Subject, cancellationToken);
+            var expectedVersion = aggregate.Version;
+
+            if (aggregate == null)
+                throw new ArgumentNullException(nameof(aggregate));
+
             var streamId = StreamId.New();
 
             await _userManager.UpdateAsync(user);
-            await _eventManager.ProcessAsync(streamId, new UserVerified(command.Subject));
+            aggregate.Verify();
+
             await _signInManager.SignInAsync(user, false);
-            await _eventManager.ProcessAsync(streamId, new UserLoggedIn(command.Subject));
+            aggregate.Login();
+
+            await _aggregateRepository.SaveAsync(aggregate, command, expectedVersion, cancellationToken);
         }
     }
 }

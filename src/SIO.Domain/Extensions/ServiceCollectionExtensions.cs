@@ -14,7 +14,6 @@ namespace SIO.Domain.Extensions
             services.AddTransient<ICommandHandler<LogoutCommand>, LogoutCommandHandler>();
             services.AddTransient<ICommandHandler<RegisterUserCommand>, RegisterUserCommandHandler>();
             services.AddTransient<ICommandHandler<VerifyUserCommand>, VerifyUserCommandHandler>();
-            services.AddTransient<IEventManager, DefaultEventManager>();
 
             return services;
         }

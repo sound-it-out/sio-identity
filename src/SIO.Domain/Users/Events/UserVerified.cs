@@ -4,7 +4,7 @@ namespace SIO.Domain.Users.Events
 {
     public class UserVerified : Event
     {
-        public UserVerified(string subject) : base(subject, 0)
+        public UserVerified(string subject, int version) : base(subject, version)
         {
         }
     }
