@@ -1,6 +1,6 @@
-﻿using System;
-using Newtonsoft.Json;
-using OpenEventSourcing.Commands;
+﻿using Newtonsoft.Json;
+using SIO.Infrastructure;
+using SIO.Infrastructure.Commands;
 
 namespace SIO.Domain.Users.Commands
 {
@@ -10,7 +10,7 @@ namespace SIO.Domain.Users.Commands
         [JsonIgnore]
         public string Password { get; set; }
 
-        public VerifyUserCommand(Guid aggregateId, Guid correlationId, int version, string userId, string token, string password) : base(aggregateId, correlationId, version, userId)
+        public VerifyUserCommand(string subject, CorrelationId? correlationId, string token, string password) : base(subject, correlationId, 0, Actor.Unknown)
         {
             Token = token;
             Password = password;

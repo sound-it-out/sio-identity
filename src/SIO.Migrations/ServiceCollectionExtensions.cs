@@ -23,8 +23,12 @@ namespace SIO.Migrations
 
                 var apiResourceOptions = new ApiResourceOptions();
                 configuration.Bind(apiResourceOptions);
-
                 config.ApiResources = apiResourceOptions.ApiResources;
+
+                var apiScopeOptions = new ApiScopeOptions();
+                configuration.Bind(apiScopeOptions);
+
+                config.ApiScopes = apiScopeOptions.ApiScopes;
             });
 
             return services;

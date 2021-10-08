@@ -7,17 +7,17 @@ namespace SIO.Identity
 {
     internal static class ClaimsPrincipleExtensions
     {
-        public static Guid? UserId(this ClaimsPrincipal principal)
+        public static string Subject(this ClaimsPrincipal principal)
         {
             if (principal == null)
                 throw new ArgumentNullException(nameof(principal));
 
             var claim = principal.Claims.FirstOrDefault(c => c.Type == JwtClaimTypes.Subject);
 
-            if (claim != null && claim.Value != null)
-                return new Guid(claim.Value);
+            if (claim == null)
+                throw new InvalidOperationException("sub claim is missing");
 
-            return null;
+            return claim.Value;
         }
     }
 }

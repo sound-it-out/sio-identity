@@ -1,14 +1,11 @@
-﻿using System;
-using OpenEventSourcing.Events;
+﻿using SIO.Infrastructure.Events;
 
 namespace SIO.Domain.Users.Events
 {
     public class UserLoggedOut : Event
     {
-        public UserLoggedOut(Guid aggregateId, Guid correlationId, string userId) : base(aggregateId, 0)
+        public UserLoggedOut(string subject, int version) : base(subject, version)
         {
-            CorrelationId = correlationId;
-            UserId = userId;
         }
     }
 }

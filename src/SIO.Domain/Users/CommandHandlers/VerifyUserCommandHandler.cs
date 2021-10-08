@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using OpenEventSourcing.Commands;
+using Microsoft.Extensions.Logging;
+using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
+using SIO.Infrastructure.Commands;
+using SIO.Infrastructure.Domain;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -15,25 +18,46 @@ namespace SIO.Domain.Users.CommandHandlers
     {
         private readonly UserManager<SIOUser> _userManager;
         private readonly SignInManager<SIOUser> _signInManager;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateFactory _aggregateFactory;
+        private readonly ILogger<VerifyUserCommandHandler> _logger;
 
-        public VerifyUserCommandHandler(UserManager<SIOUser> userManager, SignInManager<SIOUser> signInManager, IEventPublisher eventPublisher)
+        public VerifyUserCommandHandler(UserManager<SIOUser> userManager,
+            SignInManager<SIOUser> signInManager,
+            IAggregateRepository aggregateRepository,
+            IAggregateFactory aggregateFactory,
+            ILogger<VerifyUserCommandHandler> logger)
         {
             if (userManager == null)
                 throw new ArgumentNullException(nameof(userManager));
             if (signInManager == null)
                 throw new ArgumentNullException(nameof(signInManager));
-            if (eventPublisher == null)
-                throw new ArgumentNullException(nameof(eventPublisher));
+            if (aggregateRepository == null)
+                throw new ArgumentNullException(nameof(aggregateRepository));
+            if (aggregateFactory == null)
+                throw new ArgumentNullException(nameof(aggregateFactory));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
 
             _userManager = userManager;
             _signInManager = signInManager;
-            _eventPublisher = eventPublisher;
+            _aggregateRepository = aggregateRepository;
+            _aggregateFactory = aggregateFactory;
+            _logger = logger;
         }
 
-        public async Task ExecuteAsync(VerifyUserCommand command)
+        public async Task ExecuteAsync(VerifyUserCommand command, CancellationToken cancellationToken = default)
         {
-            var user = await _userManager.FindByIdAsync(command.AggregateId.ToString());
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogInformation($"{nameof(RegisterUserCommandHandler)}.{nameof(ExecuteAsync)} was cancelled before execution");
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            var user = await _userManager.FindByIdAsync(command.Subject);
 
             var confirmationResult = await _userManager.ConfirmEmailAsync(user, Encoding.UTF8.GetString(Convert.FromBase64String(command.Token)));
 
@@ -49,21 +73,21 @@ namespace SIO.Domain.Users.CommandHandlers
                 throw new PasswordCreationException(addPasswordResult.Errors.First().Description);
             }
 
+            var aggregate = await _aggregateRepository.GetAsync<User, UserState>(command.Subject, cancellationToken);
+            var expectedVersion = aggregate.Version;
+
+            if (aggregate == null)
+                throw new ArgumentNullException(nameof(aggregate));
+
+            var streamId = StreamId.New();
+
             await _userManager.UpdateAsync(user);
-
-            var userVerifiedEvent = new UserVerified(command.AggregateId, command.CorrelationId, command.AggregateId.ToString());
-            userVerifiedEvent.UpdateFrom(command);
-
-            await _eventPublisher.PublishAsync(userVerifiedEvent);
+            aggregate.Verify();
 
             await _signInManager.SignInAsync(user, false);
+            aggregate.Login();
 
-            var userLoggedInEvent = new UserLoggedIn(command.AggregateId, command.CorrelationId, command.AggregateId.ToString());
-            userLoggedInEvent.UpdateFrom(command);
-
-            await _eventPublisher.PublishAsync(userLoggedInEvent);
-
-            
+            await _aggregateRepository.SaveAsync(aggregate, command, expectedVersion, cancellationToken);
         }
     }
 }

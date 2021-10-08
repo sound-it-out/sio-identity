@@ -19,8 +19,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\SIO.Infrastructure\SIO.Infrastructure.csproj" />
-  </ItemGroup>
-
 </Project>

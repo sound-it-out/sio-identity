@@ -55,12 +55,32 @@ namespace SIO.Migrations
                     AllowOfflineAccess = c.AllowOfflineAccess
                 }).ToArray();
 
-                var apiResources = config.ApiResources.Select(resource => new ApiResource(resource.Name, resource.DisplayName, new[] { "role" }));
+                var apiScopes = config.ApiScopes.Select(resource => new ApiScope(resource.Name, resource.DisplayName));
+
+                var apiResources = config.ApiResources.Select(resource => new ApiResource(resource.Name, resource.DisplayName, new[] { "role" }) { Scopes = resource.Scopes });
 
                 await SeedClientAsync(configurationDbContext, clients);
                 await SeedIdentiyResourcesAsync(configurationDbContext, identityResources);
+                await SeedApiScopesAsync(configurationDbContext, apiScopes);
                 await SeedApiResourcesAsync(configurationDbContext, apiResources);
             }
+        }
+
+        private static async Task SeedApiScopesAsync(ConfigurationDbContext context, IEnumerable<ApiScope> apiScopes)
+        {
+            var newApiScopes = apiScopes.Where(scope => !context.ApiScopes.Any(s => s.Name == scope.Name)).ToList();
+            var existingApiScopes = apiScopes.Where(scope => context.ApiScopes.Any(s => s.Name == scope.Name)).ToList();
+
+            context.ApiScopes.AddRange(newApiScopes.Select(s => s.ToEntity()));
+            await context.SaveChangesAsync();
+
+            var toRemove = context.ApiScopes.ToArray().Where(scope => existingApiScopes.Any(c => c.Name == scope.Name)).ToList();
+            context.ApiScopes.RemoveRange(toRemove);
+
+            await context.SaveChangesAsync();
+
+            context.ApiScopes.AddRange(existingApiScopes.Select(scope => scope.ToEntity()));
+            await context.SaveChangesAsync();
         }
 
         private static async Task SeedClientAsync(ConfigurationDbContext context, IEnumerable<Client> clients)

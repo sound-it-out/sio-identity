@@ -37,7 +37,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\SIO.Domain\SIO.Domain.csproj" />
     <ProjectReference Include="..\..\src\SIO.Identity\SIO.Identity.csproj" />
-    <ProjectReference Include="..\..\src\SIO.Infrastructure\SIO.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\SIO.Migrations\SIO.Migrations.csproj" />
   </ItemGroup>
 

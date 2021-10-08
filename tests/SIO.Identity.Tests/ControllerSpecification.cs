@@ -120,7 +120,7 @@ namespace SIO.Identity.Tests
 
             var mockEventBusPublisher = new MockEventPublisher(_events);
 
-            services.AddSingleton<IEventPublisher, MockEventPublisher>(sp => mockEventBusPublisher);
+            services.AddSingleton<IEventManager, MockEventPublisher>(sp => mockEventBusPublisher);
             _serviceProvider = services.BuildServiceProvider();
             _controller = _serviceProvider.GetRequiredService<TController>();
         }
