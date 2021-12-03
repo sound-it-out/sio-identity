@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SIO.Infrastructure" Version="0.0.3" />
-    <PackageReference Include="SIO.Infrastructure.EntityFrameworkCore" Version="0.0.3" />
+    <PackageReference Include="SIO.Infrastructure" Version="0.0.5" />
+    <PackageReference Include="SIO.Infrastructure.EntityFrameworkCore" Version="0.0.5" />
   </ItemGroup>
 
 </Project>

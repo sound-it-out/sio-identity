@@ -11,10 +11,10 @@ services:
       - sio.identity.sql.identityserver
       - sio.identity.sql
   sio.identity.sql.identityserver:
-    image: "microsoft/mssql-server-linux"
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
     container_name: sio.identity.sql.identityserver
   sio.identity.sql:
-    image: "microsoft/mssql-server-linux"
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
     container_name: sio.identity.sql
 networks:    
   default:
