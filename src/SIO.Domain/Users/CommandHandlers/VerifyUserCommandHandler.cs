@@ -9,6 +9,7 @@ using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
 using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Domain;
+using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -18,13 +19,13 @@ namespace SIO.Domain.Users.CommandHandlers
     {
         private readonly UserManager<SIOUser> _userManager;
         private readonly SignInManager<SIOUser> _signInManager;
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateRepository<SIOStoreDbContext> _aggregateRepository;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly ILogger<VerifyUserCommandHandler> _logger;
 
         public VerifyUserCommandHandler(UserManager<SIOUser> userManager,
             SignInManager<SIOUser> signInManager,
-            IAggregateRepository aggregateRepository,
+            IAggregateRepository<SIOStoreDbContext> aggregateRepository,
             IAggregateFactory aggregateFactory,
             ILogger<VerifyUserCommandHandler> logger)
         {

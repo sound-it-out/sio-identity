@@ -8,6 +8,7 @@ using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
 using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Domain;
+using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Migrations;
 
 namespace SIO.Domain.Users.CommandHandlers
@@ -17,14 +18,14 @@ namespace SIO.Domain.Users.CommandHandlers
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly SignInManager<SIOUser> _signInManager;
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateRepository<SIOStoreDbContext> _aggregateRepository;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly ILogger<LogoutCommandHandler> _logger;
 
         public LogoutCommandHandler(IIdentityServerInteractionService interaction,
             IPersistedGrantService persistedGrantService,
             SignInManager<SIOUser> signInManager,
-            IAggregateRepository aggregateRepository,
+            IAggregateRepository<SIOStoreDbContext> aggregateRepository,
             IAggregateFactory aggregateFactory,
             ILogger<LogoutCommandHandler> logger)
         {

@@ -1,5 +1,5 @@
-﻿using SIO.Domain.Users.Events;
-using SIO.Infrastructure.Domain;
+﻿using SIO.Infrastructure.Domain;
+using SIO.IntegrationEvents.Users;
 
 namespace SIO.Domain.Users.Aggregates
 {
@@ -20,20 +20,24 @@ namespace SIO.Domain.Users.Aggregates
         {
             Apply(new UserRegistered(
                 subject: subject,
-                version: Version +1,
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                activationToken: activationToken
-            ));
+                version: Version +1
+            )
+            {
+                Email = email,
+                FirstName = firstName,
+                LastName = lastName,
+                ActivationToken = activationToken
+            });
         }
 
         public void RequestToken(string token)
         {
             Apply(new UserPasswordTokenGenerated(
                 subject: Id,
-                version: Version + 1, 
-                token: token));
+                version: Version + 1)
+            {
+                Token = token
+            });
         }
 
         public void Verify()
