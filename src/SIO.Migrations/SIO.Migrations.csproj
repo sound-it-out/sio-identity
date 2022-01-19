@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-    <PackageReference Include="SIO.Infrastructure.EntityFrameworkCore.SqlServer" Version="0.0.7" />
+    <PackageReference Include="SIO.Infrastructure.EntityFrameworkCore.SqlServer" Version="0.0.8" />
   </ItemGroup>
 
 </Project>
