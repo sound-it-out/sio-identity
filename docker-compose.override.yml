@@ -9,10 +9,10 @@ services:
       - ConnectionStrings__IdentityServer=Server=sio.identity.sql.identityserver;Initial Catalog=sio-identityserver;User Id=sa;Password=1qaz-pl,
       - ConnectionStrings__Identity=Server=sio.identity.sql;Initial Catalog=sio-identity;User Id=sa;Password=1qaz-pl,
       - Identity__Authority=https://sio.identity:5001
-      - Clients__1__AllowedCorsOrigins__2=https://sio.api:44363
-      - Clients__1__AllowedCorsOrigins__3=https://sio.api:42213
-      - Clients__2__AllowedCorsOrigins__2=http://sio.front.server:63328
-      - Clients__2__AllowedCorsOrigins__3=https://sio.front.server:44348
+      - Clients__0__AllowedCorsOrigins__2=https://sio.api:44363
+      - Clients__0__AllowedCorsOrigins__3=https://sio.api:42213
+      - Clients__1__AllowedCorsOrigins__2=http://sio.front.server:63328
+      - Clients__1__AllowedCorsOrigins__3=https://sio.front.server:44348
     ports:
       - "5000:80"
       - "5001:443"
@@ -20,6 +20,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   sio.identity.sql.identityserver:
+    user: 'root'
     environment:
       SA_PASSWORD: "1qaz-pl,"
       ACCEPT_EULA: "Y"
@@ -28,6 +29,7 @@ services:
     volumes:
       - /var/opt/mssql/data
   sio.identity.sql:
+    user: 'root'
     environment:
       SA_PASSWORD: "1qaz-pl,"
       ACCEPT_EULA: "Y"

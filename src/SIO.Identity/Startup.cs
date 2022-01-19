@@ -1,5 +1,4 @@
-﻿using IdentityServer4.Models;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -7,12 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SIO.Domain.Extensions;
-using SIO.Domain.Users.Events;
-using SIO.Infrastructure.Azure.ServiceBus.Extensions;
+using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.EntityFrameworkCore.SqlServer.Extensions;
 using SIO.Infrastructure.Extensions;
 using SIO.Infrastructure.Serialization.Json.Extensions;
 using SIO.Infrastructure.Serialization.MessagePack.Extensions;
+using SIO.IntegrationEvents.Users;
 
 namespace SIO.Identity
 {
@@ -29,15 +28,7 @@ namespace SIO.Identity
         {
             services.AddSIOInfrastructure()
                 .AddEntityFrameworkCoreSqlServer(options => {
-                    options.AddStore(_configuration.GetConnectionString("Store"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
-                })
-                .AddAzureServiceBus(options =>
-                {
-                    options.UseConnection(_configuration.GetConnectionString("AzureServiceBus"))
-                    .UseTopic(e =>
-                    {
-                        e.WithName(_configuration.GetValue<string>("Azure:ServiceBus:Topic"));
-                    });
+                    options.AddStore<SIOStoreDbContext>(_configuration.GetConnectionString("Store"), o => o.MigrationsAssembly($"{nameof(SIO)}.{nameof(Migrations)}"));
                 })
                 .AddCommands()
                 .AddEvents(options =>

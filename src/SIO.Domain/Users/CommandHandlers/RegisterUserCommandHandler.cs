@@ -8,6 +8,7 @@ using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
 using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Domain;
+using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Infrastructure.Events;
 using SIO.Migrations;
 
@@ -16,12 +17,12 @@ namespace SIO.Domain.Users.CommandHandlers
     internal class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand>
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateRepository<SIOStoreDbContext> _aggregateRepository;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly ILogger<RegisterUserCommandHandler> _logger;
 
         public RegisterUserCommandHandler(UserManager<SIOUser> userManager,
-            IAggregateRepository aggregateRepository,
+            IAggregateRepository<SIOStoreDbContext> aggregateRepository,
             IAggregateFactory aggregateFactory,
             ILogger<RegisterUserCommandHandler> logger)
         {

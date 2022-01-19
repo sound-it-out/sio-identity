@@ -17,12 +17,7 @@ namespace SIO.Migrations
         public ICollection<string> RedirectUris { get; set; }
         public ICollection<string> PostLogoutRedirectUris { get; set; }
         public ICollection<string> AllowedCorsOrigins { get; set; }
-        public ICollection<string> AllowedScopes { get; set; } = new[]
-        {
-            IdentityServerConstants.StandardScopes.OpenId,
-            IdentityServerConstants.StandardScopes.Profile,
-            "api"
-        };
+        public ICollection<string> AllowedScopes { get; set; }
 
         public ClientOption()
         {
@@ -31,6 +26,7 @@ namespace SIO.Migrations
             RedirectUris = new List<string>();
             PostLogoutRedirectUris = new List<string>();
             AllowedCorsOrigins = new List<string>();
+            AllowedScopes = new List<string>();
         }
     }
 }

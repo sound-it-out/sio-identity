@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using SIO.Domain.Users.Aggregates;
 using SIO.Domain.Users.Commands;
-using SIO.Domain.Users.Events;
 using SIO.Infrastructure.Commands;
 using SIO.Infrastructure.Domain;
-using SIO.Infrastructure.Events;
+using SIO.Infrastructure.EntityFrameworkCore.DbContexts;
 using SIO.Migrations;
 
 namespace SIO.Domain.Users.CommandHandlers
@@ -16,12 +15,12 @@ namespace SIO.Domain.Users.CommandHandlers
     public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand>
     {
         private readonly UserManager<SIOUser> _userManager;
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IAggregateRepository<SIOStoreDbContext> _aggregateRepository;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly ILogger<ForgotPasswordCommandHandler> _logger;
 
         public ForgotPasswordCommandHandler(UserManager<SIOUser> userManager,
-            IAggregateRepository aggregateRepository,
+            IAggregateRepository<SIOStoreDbContext> aggregateRepository,
             IAggregateFactory aggregateFactory,
             ILogger<ForgotPasswordCommandHandler> logger)
         {

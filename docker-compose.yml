@@ -3,7 +3,6 @@ version: '3.4'
 services:
   sio.identity:
     image: ${DOCKER_REGISTRY-}sioidentity
-    container_name: sio.identity
     build:
       context: .
       dockerfile: src/SIO.Identity/Dockerfile
@@ -11,11 +10,9 @@ services:
       - sio.identity.sql.identityserver
       - sio.identity.sql
   sio.identity.sql.identityserver:
-    image: "microsoft/mssql-server-linux"
-    container_name: sio.identity.sql.identityserver
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
   sio.identity.sql:
-    image: "microsoft/mssql-server-linux"
-    container_name: sio.identity.sql
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
 networks:    
   default:
     external:
